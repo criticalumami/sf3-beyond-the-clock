@@ -242,13 +242,13 @@ class Fighter {
     } else if (input.special2) {
       this.performSpecial2();
     } else if (input.heavyPunch) {
-      this.performNormal('punch_heavy', 22, 110, 55, 14);
+      this.performNormal('punch_heavy', 20, 110, 95, 14);
     } else if (input.lightPunch) {
-      this.performNormal('punch_light', 14, 50, 45, 8);
+      this.performNormal('punch_light', 12, 50, 75, 6);
     } else if (input.heavyKick) {
-      this.performNormal('kick_heavy', 24, 120, 60, 16);
+      this.performNormal('kick_heavy', 22, 120, 100, 15);
     } else if (input.lightKick) {
-      this.performNormal('kick_light', 16, 55, 48, 9);
+      this.performNormal('kick_light', 14, 55, 80, 7);
     }
   }
 
@@ -481,10 +481,17 @@ class Fighter {
       p.update();
 
       // Check collision with opponent
-      if (p.active && Math.abs(p.x - opponent.x) < 40 && Math.abs(p.y - (opponent.y - 45)) < 45) {
+      if (p.active && Math.abs(p.x - opponent.x) < 55 && Math.abs(p.y - (opponent.y - 45)) < 65) {
         // Can opponent parry projectile?
         if (opponent.parryBuffer > 0) {
-          opponent.triggerParrySuccess(this);
+          opponent.parryBuffer = 0;
+          opponent.parryFlashTimer = 16;
+          opponent.superMeter = Math.min(opponent.maxSuperMeter, opponent.superMeter + 25);
+          AudioSys.playParry();
+          AudioSys.speakLebanese('PARRY');
+          Sprites.addParryRing(p.x, p.y);
+          Sprites.addHitSpark(p.x, p.y, true, true);
+          window.gameEngine.showBannerText('YA HARAAM ! PARRY ⚡', '#00f0ff');
           p.active = false;
         } else if (opponent.invincibleTimer <= 0 && opponent.state !== 'knockdown') {
           opponent.takeHit(p.damage, true, 8, this.facing);
@@ -498,6 +505,20 @@ class Fighter {
     // Apply movement physics
     this.x += this.vx;
     this.y += this.vy;
+
+    // Pushbox body collision - fighters cannot walk through each other
+    const dx = opponent.x - this.x;
+    const dist = Math.abs(dx);
+    if (dist < 60 && Math.abs(opponent.y - this.y) < 60) {
+      const push = (60 - dist) * 0.5;
+      if (dx > 0) {
+        this.x -= push;
+        opponent.x += push;
+      } else {
+        this.x += push;
+        opponent.x -= push;
+      }
+    }
 
     // Apply gravity if airborne
     if (!this.isGrounded) {
@@ -514,8 +535,8 @@ class Fighter {
     }
 
     // Arena horizontal bounds
-    if (this.x < 45) this.x = 45;
-    if (this.x > 915) this.x = 915;
+    if (this.x < 55) this.x = 55;
+    if (this.x > 905) this.x = 905;
 
     // Face each other
     if (this.state !== 'attack' && this.state !== 'super' && this.state !== 'knockdown') {
@@ -557,10 +578,10 @@ class Fighter {
     const distanceX = (opponent.x - this.x) * this.facing;
     const distanceY = Math.abs((opponent.y - 45) - (this.y - 45));
 
-    // In attack range
-    if (distanceX > 0 && distanceX < atk.reach && distanceY < 65) {
+    // Generous and responsive hitboxes
+    if (distanceX > -15 && distanceX < atk.reach && distanceY < 85) {
       this.hasHitOpponent = true;
-      this.superMeter = Math.min(this.maxSuperMeter, this.superMeter + 15);
+      this.superMeter = Math.min(this.maxSuperMeter, this.superMeter + 18);
 
       // Check if Opponent Parries! (The Magic of SF3)
       if (opponent.parryBuffer > 0) {

@@ -98,6 +98,13 @@ class GameEngine {
     }));
   }
 
+  selectMenuOption() {
+    AudioSys.init();
+    AudioSys.playHit(true);
+    this.gameMode = 'arcade';
+    this.switchScreen('select');
+  }
+
   // --- Input Management ---
   initInputs() {
     window.addEventListener('keydown', (e) => {
@@ -217,25 +224,37 @@ class GameEngine {
   // --- UI & Screen Transitions ---
   initUI() {
     // Menu buttons
-    document.getElementById('btn-arcade').onclick = () => {
+    document.getElementById('btn-arcade').onclick = (e) => {
+      e.stopPropagation();
+      AudioSys.init();
+      AudioSys.startBGM();
       this.gameMode = 'arcade';
       this.switchScreen('select');
     };
-    document.getElementById('btn-versus').onclick = () => {
+    document.getElementById('btn-versus').onclick = (e) => {
+      e.stopPropagation();
+      AudioSys.init();
+      AudioSys.startBGM();
       this.gameMode = 'versus';
       this.switchScreen('select');
     };
-    document.getElementById('btn-training').onclick = () => {
+    document.getElementById('btn-training').onclick = (e) => {
+      e.stopPropagation();
+      AudioSys.init();
+      AudioSys.startBGM();
       this.gameMode = 'training';
       this.switchScreen('select');
     };
-    document.getElementById('btn-howtoplay').onclick = () => {
+    document.getElementById('btn-howtoplay').onclick = (e) => {
+      e.stopPropagation();
       document.getElementById('help-modal').classList.add('active');
     };
-    document.getElementById('btn-controls-quick').onclick = () => {
+    document.getElementById('btn-controls-quick').onclick = (e) => {
+      e.stopPropagation();
       document.getElementById('help-modal').classList.add('active');
     };
-    document.getElementById('close-help').onclick = () => {
+    document.getElementById('close-help').onclick = (e) => {
+      e.stopPropagation();
       document.getElementById('help-modal').classList.remove('active');
     };
 
@@ -243,6 +262,7 @@ class GameEngine {
     const charSlots = document.querySelectorAll('.char-slot');
     charSlots.forEach(slot => {
       slot.onclick = () => {
+        AudioSys.init();
         const charId = slot.getAttribute('data-char');
         this.p1Char = charId;
         this.confirmSelect('p1');
@@ -250,7 +270,10 @@ class GameEngine {
     });
 
     // Victory screen buttons
-    document.getElementById('btn-rematch').onclick = () => this.startMatch();
+    document.getElementById('btn-rematch').onclick = () => {
+      AudioSys.init();
+      this.startMatch();
+    };
     document.getElementById('btn-char-select').onclick = () => this.switchScreen('select');
     document.getElementById('btn-menu').onclick = () => this.switchScreen('title');
 
@@ -266,7 +289,7 @@ class GameEngine {
     const audioBtn = document.getElementById('toggle-audio');
     audioBtn.onclick = () => {
       const active = AudioSys.toggleAudio();
-      audioBtn.textContent = active ? 'AUDIO: ON' : 'AUDIO: MUTED';
+      audioBtn.textContent = active ? 'AUDIO: ON 🔊' : 'AUDIO: MUTED 🔇';
     };
   }
 

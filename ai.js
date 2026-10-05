@@ -33,15 +33,19 @@ class FighterAI {
 
     const dist = Math.abs(f.x - opp.x);
 
-    // 1. REACTION PARRY: Detect opponent incoming attack & tap forward/down!
-    if (opp.state === 'attack' || opp.state === 'super' || opp.projectiles.length > 0) {
-      if (Math.random() < this.parryChance && f.parryCooldown <= 0) {
+    // 1. REACTION PARRY: Roll only once per incoming attack (not 60 times per second!)
+    if ((opp.state === 'attack' || opp.state === 'super') && !this.hasRolledParry) {
+      this.hasRolledParry = true;
+      const chance = this.difficulty === 'hard' ? 0.40 : 0.18;
+      if (Math.random() < chance && f.parryCooldown <= 0) {
         if (opp.isCrouching) {
           input.tapDown = true;
         } else {
           input.tapForward = true;
         }
       }
+    } else if (opp.state !== 'attack' && opp.state !== 'super') {
+      this.hasRolledParry = false;
     }
 
     // 2. High-Priority: Super Art Punish
