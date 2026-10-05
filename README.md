@@ -1,6 +1,6 @@
-# CHALET III — 3RD STRIKE 🥊
+# CHALET KOMBAT — 1992 RETRO ARCADE 🩸🥋
 
-An authentic 8-bit / 16-bit 2D arcade combat game inspired by Capcom's legendary **Street Fighter III: 3rd Strike**, featuring 3 unique fighters: **Tony**, **George**, and **Amid**.
+An authentic 1992 digitized arcade fighting game in the brutal, visceral style of Midway's legendary **Mortal Kombat 1 (1992)**, featuring digitized photorealistic combatants: **Tony**, **George**, and **Amid**.
 
 ---
 
@@ -13,36 +13,26 @@ The game is hosted and live:
 
 ---
 
-## 🥋 Playable Fighters & Signature Special Powers
+## 🩸 Mortal Kombat 1 (1992) Retro Mechanics
 
-### 1. **TONY** — *The Crimson Bull* (Twin-Dagger Rushdown)
-- **Signature Special Power (O)**: **GROUP CALL** 📞  
-  Tony screams *"EVERYONE GET ON THE CALL!"*, summoning ringing smartphones and ultrasonic audio frequency wave projectiles that pelt the opponent!
-- **Special 2 (L)**: **Horn Ram** — Forward armored bull rush with horn impact.
-- **Super Art (Space)**: **CRIMSON EXECUTION** — Cinematic screen freeze & portrait flash, 7-hit lightning blade slice sequence across the screen!
+### 1. Digitized Photorealistic Combatants
+- Combatants are rendered as **digitized photographic fighters** with authentic 1992 video-capture arcade dither and high-contrast shading.
+- Real photographic face and expression cutouts for Tony, George, and Amid mounted on muscular martial arts anatomy with stop-motion digitized stances.
 
-### 2. **GEORGE** — *The Mystic Sage* (Chakra Ki Master)
-- **Signature Special Power (O)**: **MEDITATION** 🧘  
-  George rises into a floating lotus pose in deep meditation (*"OMMM..."*), gaining an impenetrable golden Zen Barrier, healing 120 HP, recovering Super Meter, and emitting an expanding Sanskrit OM shockwave!
-- **Special 2 (L)**: **Astral Palm** — Leaping upward palm strike with vertical blue aura pillars.
-- **Super Art (Space)**: **NIRVANA JUDGMENT** — Ancient chakra glyphs ignite, firing a massive screen-engulfing multi-hit spiritual beam!
+### 2. Chunky Flying Blood & Persistent Floor Blood Pools
+- Every punch, kick, and sweep releases **sprays of digitized crimson blood droplets** that fly under gravity and **splat onto the arena floor**, leaving permanent blood stains across the stage!
 
-### 3. **AMID** — *Burnout Overtime* (Corporate Telekinetic Brawler)
-- **Signature Special Power (O)**: **JOKES** 😂  
-  Amid pulls out a stand-up comedy microphone and drops corporate dad jokes (*"PER MY EMAIL!"*, *"DUE TODAY!"*, *"EXCEL!"*), launching floating laughter bubbles and laughing emojis that inflict comedy damage and cringe stun!
-- **Special 2 (L)**: **Ergonomic Chair Spin** — Snaps into his executive swivel chair and spins forward like a whirlwind lariat.
-- **Super Art (Space)**: **OVERTIME CALAMITY** — "OVERTIME APPROVED!" Screen freeze, summons a golden vortex of calculators, filing cabinets, and office furniture crashing into the opponent!
+### 3. The Iconic Mortal Kombat 1 Uppercut
+- **Down + Heavy Punch (S + K)**: The legendary crouching uppercut! Launches the opponent sky-high into the air with a massive vertical blood geyser!
+- **Dan Forden "TOASTY!" Easter Egg**: Uppercuts have a chance of popping Dan Forden into the bottom right corner with his famous falsetto *"TOASTY!"* voice!
 
----
+### 4. "FINISH HIM!" & FATALITIES
+- When an opponent drops to 0 HP in the deciding round, the screen turns ominous crimson and the opponent enters the dizzy swaying stagger while the booming announcer commands: **"FINISH HIM!"**
+- Land the final strike to execute a **FATALITY** with an explosion of blood!
 
-## ⚡ Authentic SF3 Mechanics
-
-### 1. High & Low Parrying
-- **High / Mid Parry**: Tap **Forward (D / →)** within 9 frames before an attack strikes!
-- **Low Parry**: Tap **Down (S / ↓)** within 9 frames before a low attack strikes!
-- **Parry Reward**: Zero chip damage, zero blockstun, attacker gets frozen in hitlag while defender can instantly retaliate!
-
-### 2. Super Art & Meter Gauges
+### 5. Deep Shao Kahn / Shang Tsung Announcer & Shaolin Gong
+- Low-frequency formant synthesized booming arcade announcer: *"CHALET KOMBAT!"*, *"ROUND ONE... FIGHT!"*, *"FINISH HIM!"*, *"FATALITY!"*, and *"FLAWLESS VICTORY!"*
+- Buddhist Temple Gong resonant chime on round start.
 - Attack, receive hits, or parry to build your Super Meter (up to 2 stocks).
 - Press **SPACE** (P1) or **Enter/0** (P2) when you have 1 stock to execute your character's cinematic Super Art!
 

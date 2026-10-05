@@ -242,7 +242,11 @@ class Fighter {
     } else if (input.special2) {
       this.performSpecial2();
     } else if (input.heavyPunch) {
-      this.performNormal('punch_heavy', 20, 110, 95, 14);
+      if (this.isCrouching) {
+        this.performUppercut();
+      } else {
+        this.performNormal('punch_heavy', 20, 110, 95, 14);
+      }
     } else if (input.lightPunch) {
       this.performNormal('punch_light', 12, 50, 75, 6);
     } else if (input.heavyKick) {
@@ -250,6 +254,25 @@ class Fighter {
     } else if (input.lightKick) {
       this.performNormal('kick_light', 14, 55, 80, 7);
     }
+  }
+
+  // --- THE ICONIC MORTAL KOMBAT 1 UPPERCUT ---
+  performUppercut() {
+    this.state = 'attack';
+    this.currentAnim = 'heavy_punch';
+    this.stateTimer = 28;
+    this.animFrame = 0;
+    this.hasHitOpponent = false;
+    this.currentAttack = {
+      name: 'uppercut',
+      damage: 195,
+      reach: 80,
+      hitFrame: 5,
+      isHeavy: true,
+      isUppercut: true,
+      knockback: 5
+    };
+    AudioSys.playWhoosh();
   }
 
   // --- Attack Actions ---
@@ -433,25 +456,64 @@ class Fighter {
     window.gameEngine.showBannerText('YA HARAAM ! PARRY ⚡', '#00f0ff');
   }
 
-  takeHit(damage, isHeavy, knockback, attackerFacing) {
+  takeHit(damage, isHeavy, knockback, attackerFacing, isUppercut = false) {
+    // If already in dizzy finish state, a hit triggers Fatality!
+    if (this.state === 'dizzy') {
+      this.hp = 0;
+      this.state = 'knockdown';
+      this.currentAnim = 'knockdown';
+      this.vy = -12;
+      this.vx = attackerFacing * 10;
+      Sprites.spawnFatalityBlood(this.x, this.y);
+      AudioSys.playUppercut();
+      window.gameEngine.triggerFatality();
+      return;
+    }
+
     this.hp = Math.max(0, this.hp - damage);
     this.hitstopTimer = isHeavy ? 10 : 6;
     this.superMeter = Math.min(this.maxSuperMeter, this.superMeter + 10);
     this.state = 'hurt';
     this.currentAnim = 'hurt';
     this.stateTimer = isHeavy ? 24 : 14;
-    this.vx = attackerFacing * knockback;
 
-    AudioSys.playHit(isHeavy);
-    Sprites.addHitSpark(this.x, this.y - 45, isHeavy, false);
-    window.gameEngine.addScreenShake(isHeavy ? 10 : 5);
+    if (isUppercut) {
+      // THE LEGENDARY MK1 UPPERCUT LAUNCH!
+      this.vy = -18.5;
+      this.vx = attackerFacing * 6.5;
+      this.isGrounded = false;
+      AudioSys.playUppercut();
+      Sprites.spawnBloodSpurt(this.x, this.y - 45, 35, true, attackerFacing, true);
+      window.gameEngine.addScreenShake(16);
+
+      // Random "TOASTY!" Easter egg
+      if (Math.random() < 0.45) {
+        Sprites.triggerToasty();
+        AudioSys.playToasty();
+      }
+    } else {
+      this.vx = attackerFacing * knockback;
+      AudioSys.playHit(isHeavy);
+      Sprites.spawnBloodSpurt(this.x, this.y - 45, isHeavy ? 22 : 12, isHeavy, attackerFacing, false);
+      Sprites.addHitSpark(this.x, this.y - 45, isHeavy, false);
+      window.gameEngine.addScreenShake(isHeavy ? 10 : 5);
+    }
 
     if (this.hp <= 0) {
-      this.state = 'knockdown';
-      this.currentAnim = 'knockdown';
-      this.vy = -10;
-      this.vx = attackerFacing * 8;
-      AudioSys.playKnockdown();
+      // Check if match deciding round for FINISH HIM!
+      if (window.gameEngine && window.gameEngine.canTriggerFinishHim()) {
+        this.state = 'dizzy';
+        this.currentAnim = 'dizzy';
+        this.vx = 0;
+        this.vy = 0;
+        window.gameEngine.triggerFinishHim(this);
+      } else {
+        this.state = 'knockdown';
+        this.currentAnim = 'knockdown';
+        this.vy = -10;
+        this.vx = attackerFacing * 8;
+        AudioSys.playKnockdown();
+      }
     }
   }
 
@@ -588,7 +650,7 @@ class Fighter {
         opponent.triggerParrySuccess(this);
       } else {
         // Standard Hit lands!
-        opponent.takeHit(atk.damage, atk.isHeavy, atk.knockback, this.facing);
+        opponent.takeHit(atk.damage, atk.isHeavy, atk.knockback, this.facing, !!atk.isUppercut);
         this.comboCounter++;
         this.comboTimer = 60;
       }

@@ -195,28 +195,28 @@ body {
 
 .sf3-logo {
   font-family: var(--sf-font-title);
-  font-size: 64px;
+  font-size: 68px;
   font-weight: 700;
   line-height: 1;
   text-transform: uppercase;
-  background: linear-gradient(180deg, #fff7a0 0%, #ff8800 50%, #990000 100%);
+  background: linear-gradient(180deg, #ffea00 0%, #d11400 45%, #550000 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: drop-shadow(4px 4px 0 #000) drop-shadow(0 0 16px rgba(255, 120, 0, 0.6));
-  letter-spacing: 2px;
+  filter: drop-shadow(4px 4px 0 #000) drop-shadow(0 0 20px rgba(255, 34, 0, 0.85));
+  letter-spacing: 4px;
 }
 
 .sf3-logo .roman {
-  color: #00e1ff;
-  -webkit-text-fill-color: #00f0ff;
-  text-shadow: 0 0 10px #00e1ff;
+  color: #ff2233;
+  -webkit-text-fill-color: #ff2233;
+  text-shadow: 0 0 14px #ff0022;
 }
 
 .edition-title {
   font-size: 11px;
   letter-spacing: 3px;
-  color: #00ffea;
-  text-shadow: 0 0 8px rgba(0, 255, 234, 0.7);
+  color: #ffd700;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.8);
   margin-top: 4px;
 }
 
@@ -268,8 +268,8 @@ body {
 }
 
 .menu-btn {
-  background: linear-gradient(90deg, rgba(20, 25, 45, 0.85), rgba(10, 12, 22, 0.85));
-  border: 2px solid #334466;
+  background: linear-gradient(90deg, rgba(28, 20, 22, 0.9), rgba(14, 12, 16, 0.95));
+  border: 2px solid #5a3c28;
   color: #ddd;
   font-family: var(--sf-font-arcade);
   font-size: 10px;
@@ -283,15 +283,15 @@ body {
 .menu-btn .cursor {
   opacity: 0;
   margin-right: 6px;
-  color: #ffcc00;
+  color: #ffd700;
 }
 
 .menu-btn:hover, .menu-btn.selected {
-  background: linear-gradient(90deg, #ff8800, #d10034);
-  color: #ffffff;
-  border-color: #ffe600;
+  background: linear-gradient(90deg, #990000, #400005);
+  color: #ffd700;
+  border-color: #ffd700;
   transform: translateX(6px);
-  box-shadow: 4px 4px 0 #000;
+  box-shadow: 4px 4px 0 #000, 0 0 14px rgba(255, 30, 0, 0.6);
 }
 
 .menu-btn:hover .cursor, .menu-btn.selected .cursor {
@@ -301,14 +301,14 @@ body {
 .press-start-blink {
   margin-top: 22px;
   font-size: 9px;
-  color: #ffe853;
+  color: #ffdd44;
   animation: pulseBlink 1.2s infinite;
 }
 
 .credits-footer {
   margin-top: 14px;
   font-size: 7px;
-  color: #6a7491;
+  color: #8c7260;
   letter-spacing: 1px;
 }
 
@@ -319,7 +319,7 @@ body {
 
 /* Character Select Screen */
 #select-screen {
-  background: radial-gradient(circle at center, #151829 0%, #060810 100%);
+  background: radial-gradient(circle at center, #1b1216 0%, #060408 100%);
   align-items: center;
   justify-content: space-between;
   padding: 30px 40px;
@@ -334,18 +334,18 @@ body {
 
 .select-header h2 {
   font-size: 18px;
-  color: #ffea00;
-  text-shadow: 3px 3px 0 #000, 0 0 10px rgba(255, 234, 0, 0.5);
+  color: #ffd700;
+  text-shadow: 3px 3px 0 #000, 0 0 14px rgba(255, 215, 0, 0.6);
   letter-spacing: 2px;
 }
 
 .timer-badge {
   font-family: var(--sf-font-title);
   font-size: 40px;
-  color: #ff3333;
+  color: #ff2222;
   text-shadow: 2px 2px 0 #000;
-  background: #111;
-  border: 2px solid #555;
+  background: #100808;
+  border: 2px solid #8b2b2b;
   padding: 0 14px;
   border-radius: 4px;
 }
@@ -359,24 +359,25 @@ body {
 
 .char-slot {
   width: 220px;
-  background: #111524;
-  border: 3px solid #28304c;
+  background: #141118;
+  border: 3px solid #553e2e;
   border-radius: 6px;
   padding: 10px;
   cursor: pointer;
   transition: all 0.2s ease;
   position: relative;
+  box-shadow: inset 0 0 12px #000, 0 4px 12px rgba(0, 0, 0, 0.9);
 }
 
 .char-slot:hover, .char-slot.p1-cursor {
-  border-color: #00d2ff;
-  box-shadow: 0 0 18px rgba(0, 210, 255, 0.7);
+  border-color: #ffd700;
+  box-shadow: 0 0 22px rgba(255, 215, 0, 0.85);
   transform: translateY(-6px);
 }
 
 .char-slot.p2-cursor {
-  border-color: #ff2a2a;
-  box-shadow: 0 0 18px rgba(255, 42, 42, 0.7);
+  border-color: #ff1133;
+  box-shadow: 0 0 22px rgba(255, 17, 51, 0.85);
 }
 
 .portrait-box {

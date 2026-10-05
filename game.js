@@ -406,6 +406,30 @@ class GameEngine {
     this.startRound();
   }
 
+  canTriggerFinishHim() {
+    return (this.p1.roundsWon >= 1 || this.p2.roundsWon >= 1) && this.matchState === 'fighting';
+  }
+
+  triggerFinishHim(loser) {
+    this.matchState = 'finish_him';
+    this.finishHimLoser = loser;
+    this.finishHimTimer = 300; // 5-second fatality window
+    this.showBannerText('FINISH HIM !', '#ff0022');
+    AudioSys.speakMK('FINISH HIM');
+  }
+
+  triggerFatality() {
+    this.matchState = 'fatality';
+    this.fatalityTimer = 180;
+    this.showBannerText('FATALITY', '#ff0022');
+    AudioSys.speakMK('FATALITY');
+    const winner = this.p1.hp > 0 ? this.p1 : this.p2;
+    winner.roundsWon++;
+    setTimeout(() => {
+      this.endMatch(winner);
+    }, 3200);
+  }
+
   startRound() {
     this.p1.resetRound(260, 1);
     this.p2.resetRound(700, -1);
@@ -417,23 +441,26 @@ class GameEngine {
       this.stageId = 'powerplant';
     }
 
+    // Play Temple Gong
+    AudioSys.playGong();
+
     const roundCode = this.currentRound === 3 ? 'FINAL ROUND' : `ROUND ${this.currentRound}`;
-    const roundText = this.currentRound === 3 ? 'AKHIR JAWLEH !' : `JAWLEH ${this.currentRound} !`;
-    this.showBannerText(roundText, '#ffdd44');
-    AudioSys.speakLebanese(roundCode);
+    const roundText = this.currentRound === 3 ? 'FINAL ROUND' : `ROUND ${this.currentRound}`;
+    this.showBannerText(roundText, '#ffd700');
+    AudioSys.speakMK(roundCode);
 
     setTimeout(() => {
-      this.showBannerText('YALLA BALLISH ! ⚔️', '#ff3300');
-      AudioSys.speakLebanese('FIGHT');
+      this.showBannerText('FIGHT !', '#ff2200');
+      AudioSys.speakMK('FIGHT');
       this.matchState = 'fighting';
       this.startTimer();
-    }, 1200);
+    }, 1300);
   }
 
   startTimer() {
     if (this.roundTimerInterval) clearInterval(this.roundTimerInterval);
     this.roundTimerInterval = setInterval(() => {
-      if (this.matchState === 'fighting' && this.roundTimer > 0) {
+      if ((this.matchState === 'fighting' || this.matchState === 'finish_him') && this.roundTimer > 0) {
         this.roundTimer--;
         if (this.roundTimer <= 0) {
           this.endRound('time');
@@ -452,8 +479,8 @@ class GameEngine {
     else winner = this.p1.hp > this.p2.hp ? this.p1 : this.p2;
 
     winner.roundsWon++;
-    this.showBannerText('KHALAS FARATTO ! 💥', '#ff1133');
-    AudioSys.speakLebanese('KO');
+    this.showBannerText(`${winner.characterId.toUpperCase()} WINS !`, '#ffdd44');
+    AudioSys.speakMK(`${winner.characterId.toUpperCase()} WINS`);
 
     setTimeout(() => {
       if (this.p1.roundsWon >= 2 || this.p2.roundsWon >= 2) {
@@ -577,22 +604,34 @@ class GameEngine {
     this.drawStage();
 
     if (this.currentScreen === 'battle') {
-      // Render Fighters
+      // 1. Dark Crimson Vignette during FINISH HIM!
+      if (this.matchState === 'finish_him') {
+        this.ctx.fillStyle = 'rgba(60, 0, 10, 0.45)';
+        this.ctx.fillRect(0, 0, 960, 540);
+      }
+
+      // 2. Persistent Floor Blood Stains & Flying Blood Droplets
+      Sprites.updateAndDrawBlood(this.ctx, 460);
+
+      // 3. Render Digitized Fighters
       this.p1.draw(this.ctx);
       this.p2.draw(this.ctx);
 
-      // Render FX (Hitsparks, Parry Shockwaves)
-      Sprites.updateAndDrawFX(this.ctx);
+      // 4. Render FX (Hitsparks, Parry Rings)
+      Sprites.drawEffects(this.ctx);
 
-      // Render Street Fighter III Retro HUD
+      // 5. Render "TOASTY!" Easter Egg
+      Sprites.drawToasty(this.ctx);
+
+      // 6. Render Mortal Kombat 1 Authentic 1992 HUD
       this.drawHUD();
 
-      // Render Super Freeze Cut-in
+      // 7. Render Super Flash Cut-in
       if (this.superFreezeTimer > 0 && this.superFreezeChar) {
         Sprites.drawSuperFlashCutIn(this.ctx, this.superFreezeChar, this.superFreezeTimer, 45);
       }
 
-      // Render Announcer Big Text Banner
+      // 8. Render Announcer Big Text Banner
       if (this.bannerTimer > 0 && this.bannerText) {
         this.drawBanner();
       }
@@ -696,122 +735,143 @@ class GameEngine {
     ctx.restore();
   }
 
-  // --- Street Fighter III Authentic HUD ---
+  // --- MORTAL KOMBAT 1 (1992 ARCADE) AUTHENTIC HUD ---
   drawHUD() {
     const ctx = this.ctx;
 
-    // --- HEALTH BARS ---
-    const barWidth = 360;
-    const barHeight = 22;
+    // --- HEALTH BARS (Thick Emerald Green with Gold Bevels & Stone Frame) ---
+    const barWidth = 370;
+    const barHeight = 24;
 
-    // P1 Health Bar (Left to Right)
-    // Dark background frame
-    ctx.fillStyle = '#1b1b22';
-    ctx.fillRect(50, 30, barWidth, barHeight);
-    ctx.strokeStyle = '#ffffff';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(50, 30, barWidth, barHeight);
+    // Helper: Draw MK1 Stone Health Bar
+    const drawMKHealthBar = (x, y, fighter, isLeft) => {
+      // 1. Dark Carved Stone Bevel Frame
+      ctx.fillStyle = '#16171d';
+      ctx.fillRect(x - 3, y - 3, barWidth + 6, barHeight + 6);
+      ctx.strokeStyle = '#383c48';
+      ctx.lineWidth = 2;
+      ctx.strokeRect(x - 3, y - 3, barWidth + 6, barHeight + 6);
 
-    // Yellow damage trail
-    const p1Yellow = (this.p1.displayHp / this.p1.maxHp) * barWidth;
-    ctx.fillStyle = '#ffea00';
-    ctx.fillRect(50 + (barWidth - p1Yellow), 30, p1Yellow, barHeight);
+      // Gold Outer Trim
+      ctx.strokeStyle = '#c89b3c';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(x - 1, y - 1, barWidth + 2, barHeight + 2);
 
-    // Green / Orange health
-    const p1Green = (this.p1.hp / this.p1.maxHp) * barWidth;
-    const p1Color = this.p1.hp > 300 ? '#00e676' : '#ff3d00';
-    ctx.fillStyle = p1Color;
-    ctx.fillRect(50 + (barWidth - p1Green), 30, p1Green, barHeight);
+      // 2. Interior Blood Red Empty Fill
+      ctx.fillStyle = '#4a0008';
+      ctx.fillRect(x, y, barWidth, barHeight);
 
-    // P2 Health Bar (Right to Left)
-    ctx.fillStyle = '#1b1b22';
-    ctx.fillRect(550, 30, barWidth, barHeight);
-    ctx.strokeStyle = '#ffffff';
-    ctx.strokeRect(550, 30, barWidth, barHeight);
+      // 3. Yellow/Orange Damage Lag Trail
+      const yellowWidth = (fighter.displayHp / fighter.maxHp) * barWidth;
+      ctx.fillStyle = '#d48800';
+      if (isLeft) {
+        ctx.fillRect(x + (barWidth - yellowWidth), y, yellowWidth, barHeight);
+      } else {
+        ctx.fillRect(x, y, yellowWidth, barHeight);
+      }
 
-    // Yellow damage trail
-    const p2Yellow = (this.p2.displayHp / this.p2.maxHp) * barWidth;
-    ctx.fillStyle = '#ffea00';
-    ctx.fillRect(550, 30, p2Yellow, barHeight);
+      // 4. Emerald Lime-Green Active Health Bar (Iconic MK1 Green)
+      const greenWidth = (fighter.hp / fighter.maxHp) * barWidth;
+      const isLow = fighter.hp < 220;
+      const pulse = isLow ? Math.sin(Date.now() * 0.012) > 0 : false;
+      const barColor = pulse ? '#ff1133' : '#00e611';
 
-    // Green / Orange health
-    const p2Green = (this.p2.hp / this.p2.maxHp) * barWidth;
-    const p2Color = this.p2.hp > 300 ? '#00e676' : '#ff3d00';
-    ctx.fillStyle = p2Color;
-    ctx.fillRect(550, 30, p2Green, barHeight);
+      ctx.fillStyle = barColor;
+      if (isLeft) {
+        ctx.fillRect(x + (barWidth - greenWidth), y, greenWidth, barHeight);
+        // Top highlight shine
+        ctx.fillStyle = pulse ? '#ff8899' : '#88ff88';
+        ctx.fillRect(x + (barWidth - greenWidth), y, greenWidth, 5);
+      } else {
+        ctx.fillRect(x, y, greenWidth, barHeight);
+        ctx.fillStyle = pulse ? '#ff8899' : '#88ff88';
+        ctx.fillRect(x, y, greenWidth, 5);
+      }
+    };
 
-    // --- ROUND TIMER ---
-    ctx.fillStyle = '#0a0d18';
-    ctx.fillRect(445, 18, 70, 48);
-    ctx.strokeStyle = '#ffcc00';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(445, 18, 70, 48);
+    // Draw P1 (Left) and P2 (Right) Bars
+    drawMKHealthBar(50, 26, this.p1, true);
+    drawMKHealthBar(540, 26, this.p2, false);
 
-    ctx.font = "bold 38px 'Teko', Impact, sans-serif";
-    ctx.fillStyle = this.roundTimer <= 10 ? '#ff1133' : '#ffea00';
+    // --- ROUND TIMER (Carved Dark Stone Tablet in Center) ---
+    ctx.fillStyle = '#101218';
+    ctx.fillRect(445, 16, 70, 46);
+    ctx.strokeStyle = '#c89b3c';
+    ctx.lineWidth = 2.5;
+    ctx.strokeRect(445, 16, 70, 46);
+
+    ctx.font = "bold 36px 'Teko', Impact, sans-serif";
+    ctx.fillStyle = this.roundTimer <= 10 ? '#ff1133' : '#ffc400';
     ctx.textAlign = 'center';
-    ctx.fillText(this.roundTimer.toString().padStart(2, '0'), 480, 54);
+    ctx.fillText(this.roundTimer.toString().padStart(2, '0'), 480, 50);
 
-    // --- FIGHTER NAMES ---
-    ctx.font = "12px 'Press Start 2P', monospace";
-    ctx.textAlign = 'left';
-    ctx.fillStyle = '#ffffff';
+    // --- FIGHTER NAMES (Bold Golden Gothic Typography Below Health Bars) ---
+    ctx.font = "bold 20px 'Teko', Impact, sans-serif";
+    ctx.fillStyle = '#ffd700';
     ctx.shadowColor = '#000';
-    ctx.shadowBlur = 4;
-    ctx.fillText(this.p1.characterId.toUpperCase(), 52, 22);
+    ctx.shadowBlur = 6;
+    ctx.textAlign = 'left';
+    ctx.fillText(this.p1.characterId.toUpperCase(), 52, 68);
 
     ctx.textAlign = 'right';
-    ctx.fillText(this.p2.characterId.toUpperCase(), 908, 22);
+    ctx.fillText(this.p2.characterId.toUpperCase(), 908, 68);
     ctx.shadowBlur = 0;
 
-    // --- ROUND WIN ICONS (V Markers) ---
+    // --- GOLDEN DRAGON MEDALLIONS / WIN TOKENS ---
     for (let i = 0; i < 2; i++) {
-      ctx.fillStyle = i < this.p1.roundsWon ? '#ffea00' : '#444';
+      // P1 Medallions
+      ctx.fillStyle = i < this.p1.roundsWon ? '#ffd700' : '#2a2d36';
+      ctx.strokeStyle = '#111';
+      ctx.lineWidth = 1.5;
       ctx.beginPath();
-      ctx.arc(420 - (i * 20), 40, 6, 0, Math.PI * 2);
+      ctx.arc(58 + (i * 22), 82, 7, 0, Math.PI * 2);
       ctx.fill();
+      ctx.stroke();
 
-      ctx.fillStyle = i < this.p2.roundsWon ? '#ffea00' : '#444';
+      // P2 Medallions
+      ctx.fillStyle = i < this.p2.roundsWon ? '#ffd700' : '#2a2d36';
       ctx.beginPath();
-      ctx.arc(540 + (i * 20), 40, 6, 0, Math.PI * 2);
+      ctx.arc(902 - (i * 22), 82, 7, 0, Math.PI * 2);
       ctx.fill();
+      ctx.stroke();
     }
 
-    // --- SUPER ART GAUGES (SF3 Bottom Meters) ---
+    // --- BOTTOM SUPER / POWER METERS ---
     const saBarWidth = 260;
     const saBarHeight = 14;
 
-    // P1 Super Meter
+    // P1 Meter
     ctx.fillStyle = '#111';
-    ctx.fillRect(50, 500, saBarWidth, saBarHeight);
-    ctx.strokeStyle = '#ffcc00';
+    ctx.fillRect(50, 504, saBarWidth, saBarHeight);
+    ctx.strokeStyle = '#c89b3c';
     ctx.lineWidth = 2;
-    ctx.strokeRect(50, 500, saBarWidth, saBarHeight);
+    ctx.strokeRect(50, 504, saBarWidth, saBarHeight);
 
     const p1SaProgress = (this.p1.superMeter / this.p1.maxSuperMeter) * saBarWidth;
-    ctx.fillStyle = this.p1.superMeter >= 100 ? '#00f0ff' : '#0077ff';
-    ctx.fillRect(50, 500, p1SaProgress, saBarHeight);
+    ctx.fillStyle = this.p1.superMeter >= 100 ? '#ff1133' : '#b30000';
+    ctx.fillRect(50, 504, p1SaProgress, saBarHeight);
 
     ctx.font = "9px 'Press Start 2P', monospace";
     ctx.textAlign = 'left';
-    ctx.fillStyle = '#00ffff';
+    ctx.fillStyle = '#ffd700';
     const p1Stocks = Math.floor(this.p1.superMeter / 100);
-    ctx.fillText(`SUPER [${p1Stocks}]`, 50, 492);
+    ctx.fillText(`KOMBAT POWER [${p1Stocks}]`, 50, 496);
 
     // P2 Super Meter
     ctx.fillStyle = '#111';
-    ctx.fillRect(650, 500, saBarWidth, saBarHeight);
-    ctx.strokeStyle = '#ffcc00';
-    ctx.strokeRect(650, 500, saBarWidth, saBarHeight);
+    ctx.fillRect(650, 504, saBarWidth, saBarHeight);
+    ctx.strokeStyle = '#c89b3c';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(650, 504, saBarWidth, saBarHeight);
 
     const p2SaProgress = (this.p2.superMeter / this.p2.maxSuperMeter) * saBarWidth;
-    ctx.fillStyle = this.p2.superMeter >= 100 ? '#ff3b30' : '#ff9500';
-    ctx.fillRect(650 + (saBarWidth - p2SaProgress), 500, p2SaProgress, saBarHeight);
+    ctx.fillStyle = this.p2.superMeter >= 100 ? '#ff1133' : '#b30000';
+    ctx.fillRect(650 + (saBarWidth - p2SaProgress), 504, p2SaProgress, saBarHeight);
 
     ctx.textAlign = 'right';
-    ctx.fillStyle = '#ff9500';
+    ctx.fillStyle = '#ffd700';
     const p2Stocks = Math.floor(this.p2.superMeter / 100);
-    ctx.fillText(`SUPER [${p2Stocks}]`, 910, 492);
+    ctx.fillText(`KOMBAT POWER [${p2Stocks}]`, 910, 496);
 
     // --- COMBO HIT COUNTER ---
     if (this.p1.comboCounter > 1 && this.p1.comboTimer > 0) {

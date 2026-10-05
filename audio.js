@@ -73,23 +73,23 @@ class SoundEngine {
   }
 
   // ==========================================
-  // PUNCHY ANIME 8-BIT COMBAT SOUND EFFECTS
+  // MORTAL KOMBAT 1 (1992) VISCERAL SOUND EFFECTS
   // ==========================================
 
   playHit(isHeavy = false) {
     this.init();
     if (!this.ctx || this.isMuted || this.ctx.state !== 'running') return;
     const t = this.ctx.currentTime;
-    const dur = isHeavy ? 0.14 : 0.08;
+    const dur = isHeavy ? 0.18 : 0.09;
 
-    // 1. Anime frequency dive oscillator (Dragon Ball / CPS3 punch)
+    // 1. Visceral Flesh Thud (Low-end body impact)
     const osc = this.ctx.createOscillator();
     const g = this.ctx.createGain();
-    osc.type = isHeavy ? 'sawtooth' : 'square';
-    osc.frequency.setValueAtTime(isHeavy ? 380 : 560, t);
-    osc.frequency.exponentialRampToValueAtTime(45, t + dur);
+    osc.type = isHeavy ? 'sawtooth' : 'triangle';
+    osc.frequency.setValueAtTime(isHeavy ? 240 : 380, t);
+    osc.frequency.exponentialRampToValueAtTime(35, t + dur);
 
-    g.gain.setValueAtTime(isHeavy ? 0.85 : 0.6, t);
+    g.gain.setValueAtTime(isHeavy ? 0.95 : 0.65, t);
     g.gain.exponentialRampToValueAtTime(0.01, t + dur);
 
     osc.connect(g);
@@ -97,21 +97,147 @@ class SoundEngine {
     osc.start(t);
     osc.stop(t + dur + 0.02);
 
-    // 2. Crisp impact noise burst
+    // 2. Visceral Bone Snap / Crunch
+    if (isHeavy) {
+      this.playBoneCrack();
+      this.playBloodSplat();
+    } else {
+      // Light flesh slap noise
+      try {
+        const bSize = Math.floor(this.ctx.sampleRate * 0.06);
+        const buf = this.ctx.createBuffer(1, bSize, this.ctx.sampleRate);
+        const d = buf.getChannelData(0);
+        for (let i = 0; i < bSize; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bSize * 0.2));
+        const nSrc = this.ctx.createBufferSource();
+        nSrc.buffer = buf;
+        const filt = this.ctx.createBiquadFilter();
+        filt.type = 'bandpass';
+        filt.frequency.setValueAtTime(1400, t);
+        nSrc.connect(filt);
+        filt.connect(this.sfxGain);
+        nSrc.start(t);
+      } catch (e) {}
+    }
+  }
+
+  // Visceral Mortal Kombat Bone Fracture Crunch
+  playBoneCrack() {
+    if (!this.ctx || this.isMuted || this.ctx.state !== 'running') return;
+    const t = this.ctx.currentTime;
+    [680, 920, 1400].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sawtooth';
+      osc.frequency.setValueAtTime(freq, t + (idx * 0.015));
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.3, t + 0.05 + (idx * 0.015));
+      g.gain.setValueAtTime(0.5, t + (idx * 0.015));
+      g.gain.exponentialRampToValueAtTime(0.01, t + 0.06 + (idx * 0.015));
+      osc.connect(g);
+      g.connect(this.sfxGain);
+      osc.start(t + (idx * 0.015));
+      osc.stop(t + 0.07 + (idx * 0.015));
+    });
+  }
+
+  // Wet Digitized Blood Splatter (SPLAT!)
+  playBloodSplat() {
+    if (!this.ctx || this.isMuted || this.ctx.state !== 'running') return;
+    const t = this.ctx.currentTime;
     try {
-      const bSize = Math.floor(this.ctx.sampleRate * dur);
+      const bSize = Math.floor(this.ctx.sampleRate * 0.12);
       const buf = this.ctx.createBuffer(1, bSize, this.ctx.sampleRate);
       const d = buf.getChannelData(0);
-      for (let i = 0; i < bSize; i++) d[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bSize * 0.25));
+      for (let i = 0; i < bSize; i++) {
+        // Squishy wet burst envelope
+        d[i] = (Math.random() * 2 - 1) * Math.sin(i / bSize * Math.PI) * Math.exp(-i / (bSize * 0.6));
+      }
       const nSrc = this.ctx.createBufferSource();
       nSrc.buffer = buf;
       const filt = this.ctx.createBiquadFilter();
-      filt.type = isHeavy ? 'lowpass' : 'bandpass';
-      filt.frequency.setValueAtTime(isHeavy ? 700 : 1600, t);
+      filt.type = 'lowpass';
+      filt.frequency.setValueAtTime(950, t);
+      filt.frequency.linearRampToValueAtTime(400, t + 0.12);
+      const g = this.ctx.createGain();
+      g.gain.setValueAtTime(0.7, t);
+      g.gain.exponentialRampToValueAtTime(0.01, t + 0.12);
       nSrc.connect(filt);
-      filt.connect(this.sfxGain);
+      filt.connect(g);
+      g.connect(this.sfxGain);
       nSrc.start(t);
     } catch (e) {}
+  }
+
+  // Iconic MK1 Heavy Uppercut Sub-Bass Boom
+  playUppercut() {
+    this.init();
+    if (!this.ctx || this.isMuted || this.ctx.state !== 'running') return;
+    const t = this.ctx.currentTime;
+
+    this.playHit(true);
+    this.playBoneCrack();
+    this.playBloodSplat();
+
+    // Heavy explosive upward boom
+    const sub = this.ctx.createOscillator();
+    const sg = this.ctx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(180, t);
+    sub.frequency.exponentialRampToValueAtTime(25, t + 0.45);
+    sg.gain.setValueAtTime(1.0, t);
+    sg.gain.exponentialRampToValueAtTime(0.01, t + 0.45);
+    sub.connect(sg);
+    sg.connect(this.sfxGain);
+    sub.start(t);
+    sub.stop(t + 0.46);
+  }
+
+  // Shaolin Temple Gong (Mortal Kombat Round Start)
+  playGong() {
+    this.init();
+    if (!this.ctx || this.isMuted || this.ctx.state !== 'running') return;
+    const t = this.ctx.currentTime;
+
+    // Resonant metallic fundamental and partials
+    const partials = [120, 245, 390, 520, 710];
+    partials.forEach((p, idx) => {
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = idx === 0 ? 'sine' : 'sawtooth';
+      osc.frequency.setValueAtTime(p, t);
+      osc.frequency.exponentialRampToValueAtTime(p * 0.98, t + 1.8);
+
+      const amp = idx === 0 ? 0.8 : 0.3 / (idx + 1);
+      g.gain.setValueAtTime(amp, t);
+      g.gain.exponentialRampToValueAtTime(0.001, t + 1.8);
+
+      osc.connect(g);
+      g.connect(this.sfxGain);
+      osc.start(t);
+      osc.stop(t + 1.85);
+    });
+  }
+
+  // Dan Forden Falsetto "TOASTY!"
+  playToasty() {
+    this.init();
+    if (!this.ctx || this.isMuted || this.ctx.state !== 'running') return;
+    const t = this.ctx.currentTime;
+    // Falsetto glide: "TOAS-TYYY!"
+    const pitches = [784, 988, 1174, 988];
+    pitches.forEach((freq, idx) => {
+      const st = t + (idx * 0.08);
+      const osc = this.ctx.createOscillator();
+      const g = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, st);
+      osc.frequency.linearRampToValueAtTime(freq * 1.05, st + 0.07);
+      g.gain.setValueAtTime(0.45, st);
+      g.gain.exponentialRampToValueAtTime(0.01, st + 0.08);
+      osc.connect(g);
+      g.connect(this.sfxGain);
+      osc.start(st);
+      osc.stop(st + 0.09);
+    });
   }
 
   playWhoosh() {
@@ -301,47 +427,128 @@ class SoundEngine {
   }
 
   // ==========================================
-  // PURE SYNTHESIZED 8-BIT LEBANESE ANNOUNCER
-  // (Zero external speech API dependency)
   // ==========================================
-  speakLebanese(code) {
+  // MORTAL KOMBAT DEEP GUTTURAL ANNOUNCER (SHAO KAHN / SHANG TSUNG)
+  // Synthesized using dual-formant resonant throat modeling & echo
+  // ==========================================
+  speakMK(phrase) {
     this.init();
     if (!this.ctx || this.isMuted || this.ctx.state !== 'running') return;
     const t = this.ctx.currentTime;
 
-    // Distinctive 8-bit phonetic pitch sequences for each Lebanese callout
-    const pitchMap = {
-      'ROUND 1': [340, 420, 500, 600],       // "Jaw-leh Weh-deh!"
-      'ROUND 2': [340, 420, 580, 480],       // "Jaw-leh Tan-yeh!"
-      'FINAL ROUND': [440, 550, 660, 880],   // "A-khir Jaw-leh!"
-      'FIGHT': [400, 620, 800],              // "Yal-la Bal-lish!"
-      'PARRY': [880, 1100, 1320],            // "Ya Ha-raam!"
-      'SUPER ART': [500, 750, 1000],         // "Wal-la'a-ha!"
-      'KO': [600, 450, 300, 180],            // "Kha-las Fa-rat-to!"
-      'WIN': [523, 659, 784, 1046]           // "Ma-brouk ya Kbeer!"
+    // Deep pitches (80Hz to 160Hz) for dark, booming arcade voice
+    const patterns = {
+      'ROUND 1': [
+        { f: 110, dur: 0.16, text: 'ROUND' },
+        { f: 98,  dur: 0.18, text: 'ONE' },
+        { f: 130, dur: 0.28, text: 'FIGHT' }
+      ],
+      'ROUND 2': [
+        { f: 110, dur: 0.16, text: 'ROUND' },
+        { f: 104, dur: 0.18, text: 'TWO' },
+        { f: 130, dur: 0.28, text: 'FIGHT' }
+      ],
+      'FINAL ROUND': [
+        { f: 98,  dur: 0.18, text: 'FINAL' },
+        { f: 110, dur: 0.18, text: 'ROUND' },
+        { f: 140, dur: 0.32, text: 'FIGHT' }
+      ],
+      'FIGHT': [
+        { f: 125, dur: 0.32, text: 'FIGHT' }
+      ],
+      'FINISH HIM': [
+        { f: 115, dur: 0.22, text: 'FINISH' },
+        { f: 85,  dur: 0.38, text: 'HIM' }
+      ],
+      'FATALITY': [
+        { f: 90,  dur: 0.16, text: 'FA' },
+        { f: 110, dur: 0.14, text: 'TAL' },
+        { f: 80,  dur: 0.45, text: 'ITY' }
+      ],
+      'FLAWLESS VICTORY': [
+        { f: 105, dur: 0.20, text: 'FLAWLESS' },
+        { f: 90,  dur: 0.35, text: 'VICTORY' }
+      ],
+      'TONY WINS': [
+        { f: 120, dur: 0.18, text: 'TONY' },
+        { f: 95,  dur: 0.32, text: 'WINS' }
+      ],
+      'GEORGE WINS': [
+        { f: 110, dur: 0.18, text: 'GEORGE' },
+        { f: 95,  dur: 0.32, text: 'WINS' }
+      ],
+      'AMID WINS': [
+        { f: 115, dur: 0.18, text: 'AMID' },
+        { f: 95,  dur: 0.32, text: 'WINS' }
+      ],
+      'EXCELLENT': [
+        { f: 95,  dur: 0.14, text: 'EX' },
+        { f: 125, dur: 0.18, text: 'CEL' },
+        { f: 90,  dur: 0.32, text: 'LENT' }
+      ],
+      'KO': [
+        { f: 130, dur: 0.16, text: 'K' },
+        { f: 80,  dur: 0.35, text: 'O' }
+      ],
+      'PARRY': [
+        { f: 150, dur: 0.12, text: 'DENIED' }
+      ]
     };
 
-    const pitches = pitchMap[code] || [440, 550, 660];
-    pitches.forEach((freq, idx) => {
-      const st = t + (idx * 0.08);
+    const notes = patterns[phrase] || [{ f: 100, dur: 0.25, text: phrase }];
+    let curTime = t;
+
+    notes.forEach((item) => {
+      const dur = item.dur;
+
+      // 1. Guttural vocal cords (sawtooth wave with sub-octave)
       const osc = this.ctx.createOscillator();
+      const sub = this.ctx.createOscillator();
       const g = this.ctx.createGain();
+
       osc.type = 'sawtooth';
-      osc.frequency.setValueAtTime(freq, st);
-      osc.frequency.linearRampToValueAtTime(freq * 1.15, st + 0.07);
+      osc.frequency.setValueAtTime(item.f, curTime);
+      osc.frequency.linearRampToValueAtTime(item.f * 0.92, curTime + dur);
 
-      g.gain.setValueAtTime(0.4, st);
-      g.gain.exponentialRampToValueAtTime(0.01, st + 0.075);
+      sub.type = 'triangle';
+      sub.frequency.setValueAtTime(item.f * 0.5, curTime);
+      sub.frequency.linearRampToValueAtTime(item.f * 0.46, curTime + dur);
 
-      osc.connect(g);
+      // 2. Dual Formant Filters (F1: Throat cavity ~450Hz, F2: Mouth opening ~1100Hz)
+      const f1 = this.ctx.createBiquadFilter();
+      f1.type = 'bandpass';
+      f1.frequency.setValueAtTime(450, curTime);
+      f1.Q.setValueAtTime(4.0, curTime);
+
+      const f2 = this.ctx.createBiquadFilter();
+      f2.type = 'bandpass';
+      f2.frequency.setValueAtTime(1150, curTime);
+      f2.Q.setValueAtTime(3.5, curTime);
+
+      g.gain.setValueAtTime(0.75, curTime);
+      g.gain.exponentialRampToValueAtTime(0.01, curTime + dur);
+
+      osc.connect(f1);
+      sub.connect(f2);
+      f1.connect(g);
+      f2.connect(g);
       g.connect(this.sfxGain);
-      osc.start(st);
-      osc.stop(st + 0.08);
+
+      osc.start(curTime);
+      sub.start(curTime);
+      osc.stop(curTime + dur + 0.02);
+      sub.stop(curTime + dur + 0.02);
+
+      curTime += dur + 0.06;
     });
   }
 
+  speakLebanese(code) {
+    this.speakMK(code);
+  }
+
   speakAnnouncer(p) {
-    this.speakLebanese(p);
+    this.speakMK(p);
   }
 
   // ==========================================
