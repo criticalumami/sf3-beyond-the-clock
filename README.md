@@ -46,11 +46,23 @@ The game is hosted and live:
 - Attack, receive hits, or parry to build your Super Meter (up to 2 stocks).
 - Press **SPACE** (P1) or **Enter/0** (P2) when you have 1 stock to execute your character's cinematic Super Art!
 
-### 3. CRT Scanline Filter & Dynamic Web Audio
-- Toggle CRT scanline arcade monitor overlay using the top bar toggle.
-- 100% procedurally synthesized 16-bit arcade sound effects and 90s chiptune BGM using the Web Audio API.
+---
+
+## 🏛️ Authentic Battle Arenas
+
+1. **Faddoul Supermarket (Jounieh / Sarba)**:
+   - Hand-crafted 16-bit retro pixel stage modeled after the iconic Jounieh mountain-coastal landmark.
+   - Features animated pulsating 24/7 red neon store signage, Our Lady of Lebanon (Harissa) silhouette on the mountaintop, Lebanese cedar flag fluttering, grocery carts, and wet asphalt rain puddles with real-time reflections.
+2. **Seaside Industrial Power Plant (Sector 7)**:
+   - Pixelated industrial coastline with twin red-and-white cooling stacks emitting animated procedural smoke plumes, coastal waters, and puddle reflections.
+- **Stage Selector**: Click the `📍 STAGE` button on the Character Select screen to toggle between Arenas, or let the Arcade mode alternate levels each round!
 
 ---
+
+## 🔊 Anime 8-Bit & Lebanese Soundscape
+- **Authentic Dabke Chiptune BGM**: Procedural 8-bit Web Audio synthesizer combining traditional Derbake (Tabla Dum/Tak) percussion grooves with piercing Mijwiz synthesizer leads!
+- **Lebanese 8-Bit Announcer**: Formant-synthesized retro voice shouting *"Yalla Ballish!"* (Let's Go!), *"Jawleh Wehdeh / Tentein!"* (Round 1 / 2), *"Khalas Faratto!"* (K.O. / It's Over!), and *"Ya Haraam!"* (You Lose!).
+- **Capcom-Grade SF3 Sound FX**: Anime energy sweeps, sharp crystal parry clinks, voltage Super Art screen freeze, and impactful punch/kick hits.
 
 ## 🎮 Controls
 
