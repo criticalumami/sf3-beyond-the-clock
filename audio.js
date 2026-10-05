@@ -228,6 +228,89 @@ class SoundEngine {
     osc.stop(now + 0.13);
   }
 
+  // TONY'S SPECIAL: Group Call (Phone ringing & audio feedback chime)
+  playGroupCall() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    // Dual tone phone ring (440Hz + 480Hz)
+    [440, 480, 880].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now);
+      osc.frequency.setValueAtTime(freq * 1.2, now + 0.08);
+
+      gain.gain.setValueAtTime(0.35, now);
+      gain.gain.exponentialRampToValueAtTime(0.01, now + 0.28);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(now);
+      osc.stop(now + 0.29);
+    });
+  }
+
+  // GEORGE'S SPECIAL: Meditation (Resonant Singing Bowl & OM Drone)
+  playMeditation() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    // Warm Tibetan singing bowl harmonics (136.1 Hz Ohm frequency)
+    [136.1, 272.2, 408.3, 544.4].forEach((freq, idx) => {
+      const osc = this.ctx.createOscillator();
+      const gain = this.ctx.createGain();
+      osc.type = idx === 0 ? 'sine' : 'triangle';
+      osc.frequency.setValueAtTime(freq, now);
+
+      gain.gain.setValueAtTime(0.4 / (idx + 1), now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.75);
+
+      osc.connect(gain);
+      gain.connect(this.sfxGain);
+      osc.start(now);
+      osc.stop(now + 0.76);
+    });
+  }
+
+  // AMID'S SPECIAL: Jokes (Classic Stand-up Comedy Rimshot Ba-dum-tss!)
+  playJoke() {
+    if (!this.ctx || this.isMuted) return;
+    const now = this.ctx.currentTime;
+    
+    // Drum 1: Ba (now)
+    const d1 = this.ctx.createOscillator();
+    const g1 = this.ctx.createGain();
+    d1.frequency.setValueAtTime(180, now);
+    d1.frequency.exponentialRampToValueAtTime(70, now + 0.06);
+    g1.gain.setValueAtTime(0.5, now);
+    g1.gain.exponentialRampToValueAtTime(0.01, now + 0.07);
+    d1.connect(g1); g1.connect(this.sfxGain);
+    d1.start(now); d1.stop(now + 0.07);
+
+    // Drum 2: Dum (now + 0.09)
+    const d2 = this.ctx.createOscillator();
+    const g2 = this.ctx.createGain();
+    d2.frequency.setValueAtTime(220, now + 0.09);
+    d2.frequency.exponentialRampToValueAtTime(90, now + 0.16);
+    g2.gain.setValueAtTime(0.5, now + 0.09);
+    g2.gain.exponentialRampToValueAtTime(0.01, now + 0.17);
+    d2.connect(g2); g2.connect(this.sfxGain);
+    d2.start(now + 0.09); d2.stop(now + 0.17);
+
+    // Cymbal: Tss! (now + 0.19)
+    const cSize = this.ctx.sampleRate * 0.25;
+    const cBuf = this.ctx.createBuffer(1, cSize, this.ctx.sampleRate);
+    const cd = cBuf.getChannelData(0);
+    for (let i = 0; i < cSize; i++) cd[i] = (Math.random() * 2 - 1) * Math.exp(-i / (cSize * 0.2));
+    const cSrc = this.ctx.createBufferSource();
+    cSrc.buffer = cBuf;
+    const hp = this.ctx.createBiquadFilter();
+    hp.type = 'highpass';
+    hp.frequency.setValueAtTime(4500, now + 0.19);
+    cSrc.connect(hp);
+    hp.connect(this.sfxGain);
+    cSrc.start(now + 0.19);
+  }
+
   playChairSpin() {
     if (!this.ctx || this.isMuted) return;
     const now = this.ctx.currentTime;

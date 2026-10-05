@@ -59,37 +59,44 @@ class FighterAI {
       const rand = Math.random();
 
       if (f.characterId === 'tony') {
-        // TONY: Aggressive Rushdown
+        // TONY: Aggressive Rushdown with Group Call zoning
         if (dist > 180) {
-          this.currentIntent = rand < 0.6 ? 'approach' : 'special_rush';
+          this.currentIntent = rand < 0.4 ? 'group_call' : (rand < 0.7 ? 'approach' : 'special_rush');
         } else if (dist < 75) {
           this.currentIntent = rand < 0.5 ? 'melee_heavy' : 'melee_light';
         } else {
-          this.currentIntent = rand < 0.4 ? 'special_rush' : 'approach';
+          this.currentIntent = rand < 0.35 ? 'group_call' : (rand < 0.7 ? 'special_rush' : 'approach');
         }
       } else if (f.characterId === 'george') {
-        // GEORGE: Shoto / Spiritual Zoner
-        if (dist > 220) {
-          this.currentIntent = rand < 0.5 ? 'fireball' : 'approach';
+        // GEORGE: Shoto with Meditation Healing & Counter
+        if (f.hp < 500 && Math.random() < 0.4) {
+          this.currentIntent = 'meditation';
+        } else if (dist > 200) {
+          this.currentIntent = rand < 0.45 ? 'meditation' : 'approach';
         } else if (dist < 90) {
           this.currentIntent = rand < 0.4 ? 'anti_air' : 'retreat';
         } else {
-          this.currentIntent = rand < 0.4 ? 'melee_poke' : 'fireball';
+          this.currentIntent = rand < 0.4 ? 'melee_poke' : 'meditation';
         }
       } else if (f.characterId === 'amid') {
-        // AMID: Unpredictable Corporate Brawler
-        if (dist > 200) {
-          this.currentIntent = rand < 0.5 ? 'chair_spin' : 'fireball';
+        // AMID: Stand-up Jokes & Chair Hurricane Brawler
+        if (dist > 190) {
+          this.currentIntent = rand < 0.5 ? 'jokes' : 'chair_spin';
         } else if (dist < 80) {
-          this.currentIntent = rand < 0.5 ? 'melee_heavy' : 'chair_spin';
+          this.currentIntent = rand < 0.5 ? 'melee_heavy' : 'jokes';
         } else {
-          this.currentIntent = rand < 0.4 ? 'approach' : 'chair_spin';
+          this.currentIntent = rand < 0.4 ? 'jokes' : 'chair_spin';
         }
       }
     }
 
     // 4. Translate intent to inputs
     switch (this.currentIntent) {
+      case 'group_call':
+      case 'meditation':
+      case 'jokes':
+        input.special1 = true;
+        break;
       case 'approach':
         input.forward = true;
         // Occasional jump in

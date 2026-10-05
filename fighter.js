@@ -5,9 +5,9 @@ const GROUND_Y = 460;
 const PARRY_WINDOW_FRAMES = 9; // ~150ms tight Street Fighter 3 parry timing
 
 class Projectile {
-  constructor(owner, type, x, y, vx, damage, color) {
+  constructor(owner, type, x, y, vx, damage, color, extraText = '') {
     this.owner = owner;
-    this.type = type; // 'hadou', 'paper', 'coffee', 'calc'
+    this.type = type; // 'hadou', 'paper', 'coffee', 'calc', 'phone', 'joke', 'om_wave'
     this.x = x;
     this.y = y;
     this.vx = vx;
@@ -17,11 +17,12 @@ class Projectile {
     this.active = true;
     this.life = 120;
     this.rotation = 0;
+    this.extraText = extraText;
   }
 
   update() {
     this.x += this.vx;
-    this.rotation += 0.2;
+    this.rotation += 0.15;
     this.life--;
     if (this.x < 20 || this.x > 940 || this.life <= 0) {
       this.active = false;
@@ -33,7 +34,42 @@ class Projectile {
     ctx.translate(this.x, this.y);
     ctx.rotate(this.rotation);
 
-    if (this.type === 'hadou') {
+    if (this.type === 'phone') {
+      // Tony's Group Call: Ringing smartphone with soundwave rings
+      ctx.fillStyle = '#111';
+      ctx.fillRect(-10, -16, 20, 32);
+      ctx.fillStyle = '#00f0ff'; // Glowing call screen
+      ctx.fillRect(-8, -13, 16, 24);
+      ctx.fillStyle = '#00ff66'; // Green call icon
+      ctx.fillRect(-4, -4, 8, 8);
+      // Ringing radio waves
+      ctx.strokeStyle = '#ff3366';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(0, 0, 22, 0, Math.PI * 2);
+      ctx.stroke();
+    } else if (this.type === 'om_wave') {
+      // George's Meditation: Expanding golden Sanskrit / OM ripple
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.85)';
+      ctx.lineWidth = 4;
+      ctx.beginPath();
+      ctx.arc(0, 0, 26, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = '#ffd700';
+      ctx.font = 'bold 16px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ॐ', 0, 6);
+    } else if (this.type === 'joke') {
+      // Amid's Jokes: Floating laughter "HA HA!" comic balloon
+      ctx.fillStyle = '#ffea00';
+      ctx.beginPath();
+      ctx.arc(0, 0, 16, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#000';
+      ctx.font = "bold 9px 'Press Start 2P', monospace";
+      ctx.textAlign = 'center';
+      ctx.fillText(this.extraText || 'HA!', 0, 4);
+    } else if (this.type === 'hadou') {
       // Swirling Blue Chakra Orb
       ctx.fillStyle = '#00ffff';
       ctx.beginPath();
@@ -239,33 +275,79 @@ class Fighter {
   performSpecial1() {
     this.state = 'attack';
     this.currentAnim = 'special_1';
-    this.stateTimer = 34;
+    this.stateTimer = 40;
     this.animFrame = 0;
     this.hasHitOpponent = false;
 
     if (this.characterId === 'tony') {
-      // Crimson Ripper (Triple fast dagger slash)
-      this.currentAttack = { name: 'crimson_ripper', damage: 160, reach: 75, hitFrame: 8, isHeavy: true, knockback: 12 };
-      AudioSys.playWhoosh();
+      // TONY'S SPECIAL POWER: "GROUP CALL"
+      // Tony screams "EVERYONE JOIN THE CALL!", summoning ringing smartphones & audio frequency waves!
+      this.currentAttack = { name: 'group_call', damage: 155, reach: 0, hitFrame: 8, isProjectile: true };
+      AudioSys.playGroupCall();
+      window.gameEngine.showBannerText('📞 GROUP CALL !', '#00f0ff');
+      AudioSys.speakAnnouncer('GROUP CALL !');
+
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          if (this.state === 'attack' || this.state === 'idle') {
+            this.projectiles.push(new Projectile(
+              this,
+              'phone',
+              this.x + this.facing * (30 + i * 20),
+              this.y - 45 - (i * 12),
+              this.facing * (7 + i * 1.2),
+              55,
+              '#00f0ff'
+            ));
+            AudioSys.playGroupCall();
+          }
+        }, 120 + (i * 110));
+      }
+
     } else if (this.characterId === 'george') {
-      // Chakra Hadou Projectile
-      this.currentAttack = { name: 'chakra_hadou', damage: 140, reach: 0, hitFrame: 12, isProjectile: true };
+      // GEORGE'S SPECIAL POWER: "MEDITATION"
+      // George floats in deep lotus meditation, generating an impenetrable Zen Barrier and OM aura wave!
+      this.currentAttack = { name: 'meditation', damage: 120, reach: 85, hitFrame: 10, isHeavy: true };
+      this.invincibleTimer = 35; // Invincible during meditation chant!
+      this.hp = Math.min(this.maxHp, this.hp + 120); // Meditative healing!
+      this.superMeter = Math.min(this.maxSuperMeter, this.superMeter + 35); // Spiritual focus!
+      
+      AudioSys.playMeditation();
+      window.gameEngine.showBannerText('🧘 MEDITATION !', '#ffd700');
+      AudioSys.speakAnnouncer('MEDITATION !');
+
+      // Expand Sanskrit OM wave ring
       setTimeout(() => {
-        if (this.state === 'attack') {
-          this.projectiles.push(new Projectile(this, 'hadou', this.x + this.facing * 40, this.y - 50, this.facing * 7.5, 140, '#00ffff'));
-          AudioSys.playHadouken();
-        }
+        this.projectiles.push(new Projectile(this, 'om_wave', this.x + this.facing * 40, this.y - 45, this.facing * 6.5, 120, '#00ffff'));
       }, 180);
+
     } else if (this.characterId === 'amid') {
-      // Urgent Paperwork & Hot Coffee Toss
-      this.currentAttack = { name: 'urgent_paperwork', damage: 135, reach: 0, hitFrame: 10, isProjectile: true };
-      setTimeout(() => {
-        if (this.state === 'attack') {
-          this.projectiles.push(new Projectile(this, 'coffee', this.x + this.facing * 35, this.y - 55, this.facing * 6.5, 90, '#fff'));
-          this.projectiles.push(new Projectile(this, 'calc', this.x + this.facing * 20, this.y - 65, this.facing * 5.5, 60, '#ff9900'));
-          AudioSys.playOfficeToss();
-        }
-      }, 160);
+      // AMID'S SPECIAL POWER: "JOKES"
+      // Amid drops a dad joke punchline that inflicts emotional & comedy damage!
+      const jokesList = [
+        'EXCEL!', 'DUE TODAY!', 'PER MY EMAIL!', 'COFFEE!', 'TAX AUDIT!'
+      ];
+      const jokeText = jokesList[Math.floor(Math.random() * jokesList.length)];
+      
+      this.currentAttack = { name: 'jokes', damage: 165, reach: 0, hitFrame: 8, isProjectile: true };
+      AudioSys.playJoke();
+      window.gameEngine.showBannerText(`😂 JOKES: "${jokeText}"`, '#ffea00');
+      AudioSys.speakAnnouncer('JOKES !');
+
+      for (let i = 0; i < 3; i++) {
+        setTimeout(() => {
+          this.projectiles.push(new Projectile(
+            this,
+            'joke',
+            this.x + this.facing * 35,
+            this.y - 50 + (i * 12),
+            this.facing * (6 + i),
+            55,
+            '#ffea00',
+            jokeText
+          ));
+        }, 120 + (i * 90));
+      }
     }
   }
 

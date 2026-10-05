@@ -171,11 +171,29 @@ class SpriteRenderer {
     ctx.fillRect(7, headY + 2, 6, 4);
 
     // --- ARMS & DUAL DAGGERS ---
-    if (anim === 'attack_light') {
+    if (anim === 'special_1') {
+      // Group Call: Holds up ringing smartphone in hand, soundwaves radiating!
+      this.drawDaggerArm(ctx, 10, torsoY + 2, 32, torsoY - 14, false);
+      this.drawDaggerArm(ctx, -12, torsoY + 10, -18, torsoY + 16, true);
+      // Smartphone in hand
+      ctx.fillStyle = '#1a1a24';
+      ctx.fillRect(28, torsoY - 26, 12, 22);
+      ctx.fillStyle = '#00f0ff'; // Screen glow
+      ctx.fillRect(30, torsoY - 24, 8, 16);
+      // Radio audio wave arcs
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.7)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(34, torsoY - 15, 14, -Math.PI / 3, Math.PI / 3);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(34, torsoY - 15, 22, -Math.PI / 3, Math.PI / 3);
+      ctx.stroke();
+    } else if (anim === 'attack_light') {
       // Fast thrust with lead dagger
       this.drawDaggerArm(ctx, 10, torsoY + 6, 45, torsoY + 2, true);
       this.drawDaggerArm(ctx, -12, torsoY + 10, -2, torsoY + 14, false);
-    } else if (anim === 'attack_heavy' || anim === 'special_1') {
+    } else if (anim === 'attack_heavy') {
       // Scissor cross slash
       const slashReach = 50 + Math.sin(frame * 0.8) * 15;
       this.drawDaggerArm(ctx, 10, torsoY + 2, slashReach, torsoY - 8, true);
@@ -295,7 +313,28 @@ class SpriteRenderer {
     ctx.fillRect(2, headY + 8, 3, 3);
 
     // --- ARMS & GLOWING KI ENERGY ---
-    if (anim === 'attack_light' || anim === 'attack_heavy') {
+    if (anim === 'special_1') {
+      // MEDITATION: Floating Lotus Pose with Golden Zen Aura & Sanskrit glyph
+      this.drawMonkArm(ctx, 10, torsoY + 12, 16, torsoY + 28, true);
+      this.drawMonkArm(ctx, -10, torsoY + 12, -16, torsoY + 28, true);
+      
+      // Radiant Golden Meditation Aura Sphere
+      ctx.fillStyle = 'rgba(255, 215, 0, 0.35)';
+      ctx.beginPath();
+      ctx.arc(0, -50 + bob, 45, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.strokeStyle = '#ffd700';
+      ctx.lineWidth = 3;
+      ctx.stroke();
+
+      // Floating Sanskrit symbol
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 24px sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ॐ', 0, -42 + bob);
+
+    } else if (anim === 'attack_light' || anim === 'attack_heavy') {
       // Palm thrust with blue ki flare
       this.drawMonkArm(ctx, 12, torsoY + 8, 45, torsoY + 6, true);
       this.drawMonkArm(ctx, -10, torsoY + 10, -5, torsoY + 15, false);
@@ -303,15 +342,6 @@ class SpriteRenderer {
       ctx.fillStyle = 'rgba(0, 240, 255, 0.8)';
       ctx.beginPath();
       ctx.arc(45, torsoY + 6, 12, 0, Math.PI * 2);
-      ctx.fill();
-    } else if (anim === 'special_1') {
-      // Hadouken projectile cast pose
-      this.drawMonkArm(ctx, 8, torsoY + 4, 38, torsoY + 10, true);
-      this.drawMonkArm(ctx, -4, torsoY + 8, 36, torsoY + 18, true);
-      // Swirling energy ball between hands
-      ctx.fillStyle = '#00ffff';
-      ctx.beginPath();
-      ctx.arc(40, torsoY + 14, 14, 0, Math.PI * 2);
       ctx.fill();
     } else if (anim === 'special_2') {
       // Leaping Astral Shoryu Palm
@@ -475,11 +505,31 @@ class SpriteRenderer {
     ctx.strokeRect(-5, torsoY + 14, 10, 5);
 
     // --- ARMS & TELEKINETIC PALM THRUSTS ---
-    if (anim === 'attack_light') {
+    if (anim === 'special_1') {
+      // JOKES: Stand-up comedy gesture, holding mic / gesturing punchline with floating "HA HA!"
+      this.drawOfficeArm(ctx, 12, torsoY + 4, 34, torsoY - 8, true);
+      this.drawOfficeArm(ctx, -10, torsoY + 10, -22, torsoY + 24, false);
+      
+      // Comedy microphone in hand
+      ctx.fillStyle = '#111';
+      ctx.fillRect(32, torsoY - 18, 5, 14);
+      ctx.fillStyle = '#aaa'; // Mic grille
+      ctx.beginPath();
+      ctx.arc(34, torsoY - 20, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Comic speech bubble / Laughing sparks
+      ctx.fillStyle = '#fff';
+      ctx.fillRect(40, torsoY - 40, 48, 22);
+      ctx.fillStyle = '#000';
+      ctx.font = "bold 8px 'Press Start 2P', monospace";
+      ctx.fillText("HA! HA!", 44, torsoY - 26);
+
+    } else if (anim === 'attack_light') {
       // Rapid backhand paper slap
       this.drawOfficeArm(ctx, 12, torsoY + 6, 42, torsoY + 4, true);
       this.drawOfficeArm(ctx, -12, torsoY + 12, -8, torsoY + 18, false);
-    } else if (anim === 'attack_heavy' || anim === 'special_1') {
+    } else if (anim === 'attack_heavy') {
       // Double telekinetic palm blast sending files forward!
       this.drawOfficeArm(ctx, 12, torsoY + 4, 44, torsoY + 8, true);
       this.drawOfficeArm(ctx, -8, torsoY + 6, 38, torsoY + 14, true);

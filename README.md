@@ -1,4 +1,4 @@
-# Street Fighter III: 3rd Strike — Beyond the Clock 🥊
+# CHALET III — 3RD STRIKE 🥊
 
 An authentic 8-bit / 16-bit 2D arcade combat game inspired by Capcom's legendary **Street Fighter III: 3rd Strike**, featuring 3 unique fighters: **Tony**, **George**, and **Amid**.
 
@@ -13,27 +13,24 @@ The game is hosted and live:
 
 ---
 
-## 🥋 Playable Fighters
+## 🥋 Playable Fighters & Signature Special Powers
 
 ### 1. **TONY** — *The Crimson Bull* (Twin-Dagger Rushdown)
-- **Archetype**: Fast assassin, high mobility, vicious close-range blade combos.
-- **Specials**:
-  - `Special 1 (O)`: **Crimson Ripper** — Rapid frenzy of twin-dagger cross slashes releasing red crescent shockwaves.
-  - `Special 2 (L)`: **Horn Ram** — Forward armored bull rush with horn impact.
+- **Signature Special Power (O)**: **GROUP CALL** 📞  
+  Tony screams *"EVERYONE GET ON THE CALL!"*, summoning ringing smartphones and ultrasonic audio frequency wave projectiles that pelt the opponent!
+- **Special 2 (L)**: **Horn Ram** — Forward armored bull rush with horn impact.
 - **Super Art (Space)**: **CRIMSON EXECUTION** — Cinematic screen freeze & portrait flash, 7-hit lightning blade slice sequence across the screen!
 
 ### 2. **GEORGE** — *The Mystic Sage* (Chakra Ki Master)
-- **Archetype**: Spiritual martial artist, projectile zoning & devastating anti-airs.
-- **Specials**:
-  - `Special 1 (O)`: **Chakra Hadou** — Gathers swirling cyan ki orb and throws it across the arena.
-  - `Special 2 (L)`: **Astral Palm** — Leaping upward palm strike with vertical blue aura pillars.
+- **Signature Special Power (O)**: **MEDITATION** 🧘  
+  George rises into a floating lotus pose in deep meditation (*"OMMM..."*), gaining an impenetrable golden Zen Barrier, healing 120 HP, recovering Super Meter, and emitting an expanding Sanskrit OM shockwave!
+- **Special 2 (L)**: **Astral Palm** — Leaping upward palm strike with vertical blue aura pillars.
 - **Super Art (Space)**: **NIRVANA JUDGMENT** — Ancient chakra glyphs ignite, firing a massive screen-engulfing multi-hit spiritual beam!
 
 ### 3. **AMID** — *Burnout Overtime* (Corporate Telekinetic Brawler)
-- **Archetype**: Unpredictable psychic desk fighter, throwing office supplies and chaotic chair spins.
-- **Specials**:
-  - `Special 1 (O)`: **Urgent Paperwork & Coffee Volley** — Telekinetically hurls a hot coffee mug and flying calculators/dossiers.
-  - `Special 2 (L)`: **Ergonomic Chair Spin** — Snaps into his executive swivel chair and spins forward like a whirlwind lariat.
+- **Signature Special Power (O)**: **JOKES** 😂  
+  Amid pulls out a stand-up comedy microphone and drops corporate dad jokes (*"PER MY EMAIL!"*, *"DUE TODAY!"*, *"EXCEL!"*), launching floating laughter bubbles and laughing emojis that inflict comedy damage and cringe stun!
+- **Special 2 (L)**: **Ergonomic Chair Spin** — Snaps into his executive swivel chair and spins forward like a whirlwind lariat.
 - **Super Art (Space)**: **OVERTIME CALAMITY** — "OVERTIME APPROVED!" Screen freeze, summons a golden vortex of calculators, filing cabinets, and office furniture crashing into the opponent!
 
 ---
