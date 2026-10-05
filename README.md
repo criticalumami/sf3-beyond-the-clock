@@ -5,10 +5,11 @@ An authentic 8-bit / 16-bit 2D arcade combat game inspired by Capcom's legendary
 ---
 
 ## 🕹️ Live Online Access
-The game is currently running live on the web:
-- **Public URL**: [https://empty-masks-write.loca.lt](https://empty-masks-write.loca.lt)
-- *(If prompted by localtunnel for Tunnel Password, enter: `94.187.18.231`)*
-- **Local URL**: [http://localhost:8085](http://localhost:8085)
+The game is hosted and live:
+- 🌐 **GitHub Pages (Permanent Live Host)**: [https://criticalumami.github.io/sf3-beyond-the-clock/](https://criticalumami.github.io/sf3-beyond-the-clock/)
+- 🐙 **GitHub Repository**: [https://github.com/criticalumami/sf3-beyond-the-clock](https://github.com/criticalumami/sf3-beyond-the-clock)
+- ⚡ **Local Development URL**: [http://localhost:8085](http://localhost:8085)
+- 🔗 **Tunnel URL**: [https://empty-masks-write.loca.lt](https://empty-masks-write.loca.lt) (Password: `94.187.18.231`)
 
 ---
 
