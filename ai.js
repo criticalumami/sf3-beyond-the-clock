@@ -1,0 +1,134 @@
+// Street Fighter III Intelligent AI Engine: Footsies, Spacing & Reactive Parrying
+
+class FighterAI {
+  constructor(fighter, opponent, difficulty = 'medium') {
+    this.fighter = fighter;
+    this.opponent = opponent;
+    this.difficulty = difficulty; // 'easy', 'medium', 'hard' (EVO Champion)
+
+    this.decisionTimer = 0;
+    this.currentIntent = 'neutral'; // 'approach', 'retreat', 'poke', 'zone', 'parry'
+    this.parryChance = difficulty === 'hard' ? 0.75 : (difficulty === 'medium' ? 0.40 : 0.15);
+  }
+
+  update() {
+    const f = this.fighter;
+    const opp = this.opponent;
+
+    const input = {
+      forward: false,
+      backward: false,
+      up: false,
+      down: false,
+      tapForward: false,
+      tapDown: false,
+      lightPunch: false,
+      heavyPunch: false,
+      lightKick: false,
+      heavyKick: false,
+      special1: false,
+      special2: false,
+      superArt: false
+    };
+
+    const dist = Math.abs(f.x - opp.x);
+
+    // 1. REACTION PARRY: Detect opponent incoming attack & tap forward/down!
+    if (opp.state === 'attack' || opp.state === 'super' || opp.projectiles.length > 0) {
+      if (Math.random() < this.parryChance && f.parryCooldown <= 0) {
+        if (opp.isCrouching) {
+          input.tapDown = true;
+        } else {
+          input.tapForward = true;
+        }
+      }
+    }
+
+    // 2. High-Priority: Super Art Punish
+    if (f.superMeter >= 100 && (dist < 120 || opp.state === 'hurt' || opp.hitstopTimer > 0)) {
+      if (Math.random() < 0.6) {
+        input.superArt = true;
+        return input;
+      }
+    }
+
+    // 3. Strategic decisions based on character archetype
+    this.decisionTimer--;
+    if (this.decisionTimer <= 0) {
+      this.decisionTimer = 10 + Math.floor(Math.random() * 15);
+      const rand = Math.random();
+
+      if (f.characterId === 'tony') {
+        // TONY: Aggressive Rushdown
+        if (dist > 180) {
+          this.currentIntent = rand < 0.6 ? 'approach' : 'special_rush';
+        } else if (dist < 75) {
+          this.currentIntent = rand < 0.5 ? 'melee_heavy' : 'melee_light';
+        } else {
+          this.currentIntent = rand < 0.4 ? 'special_rush' : 'approach';
+        }
+      } else if (f.characterId === 'george') {
+        // GEORGE: Shoto / Spiritual Zoner
+        if (dist > 220) {
+          this.currentIntent = rand < 0.5 ? 'fireball' : 'approach';
+        } else if (dist < 90) {
+          this.currentIntent = rand < 0.4 ? 'anti_air' : 'retreat';
+        } else {
+          this.currentIntent = rand < 0.4 ? 'melee_poke' : 'fireball';
+        }
+      } else if (f.characterId === 'amid') {
+        // AMID: Unpredictable Corporate Brawler
+        if (dist > 200) {
+          this.currentIntent = rand < 0.5 ? 'chair_spin' : 'fireball';
+        } else if (dist < 80) {
+          this.currentIntent = rand < 0.5 ? 'melee_heavy' : 'chair_spin';
+        } else {
+          this.currentIntent = rand < 0.4 ? 'approach' : 'chair_spin';
+        }
+      }
+    }
+
+    // 4. Translate intent to inputs
+    switch (this.currentIntent) {
+      case 'approach':
+        input.forward = true;
+        // Occasional jump in
+        if (dist > 150 && Math.random() < 0.05) input.up = true;
+        break;
+
+      case 'retreat':
+        input.backward = true;
+        break;
+
+      case 'melee_light':
+        input.lightPunch = true;
+        break;
+
+      case 'melee_heavy':
+        input.heavyPunch = true;
+        break;
+
+      case 'melee_poke':
+        input.lightKick = true;
+        break;
+
+      case 'fireball':
+        input.special1 = true;
+        break;
+
+      case 'anti_air':
+        input.special2 = true;
+        break;
+
+      case 'special_rush':
+        input.special2 = true;
+        break;
+
+      case 'chair_spin':
+        input.special2 = true;
+        break;
+    }
+
+    return input;
+  }
+}

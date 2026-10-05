@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>STREET FIGHTER III: 3RD STRIKE - BEYOND THE CLOCK</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="game-container">
+    <!-- Main Game Canvas -->
+    <canvas id="gameCanvas" width="960" height="540"></canvas>
+
+    <!-- Retro CRT & Scanline Overlays -->
+    <div id="crt-overlay" class="crt-active"></div>
+    <div id="vignette-overlay"></div>
+
+    <!-- UI Overlay Layer for Menus & HUD -->
+    <div id="ui-layer">
+      <!-- Title Screen -->
+      <div id="title-screen" class="screen active">
+        <div class="arcade-cabinet-frame">
+          <div class="logo-container">
+            <div class="sub-title">CAPCOM LEGACY PRESENTS</div>
+            <h1 class="sf3-logo">STREET FIGHTER <span class="roman">III</span></h1>
+            <div class="edition-title">3RD STRIKE &bull; BEYOND THE CLOCK</div>
+          </div>
+          <div class="char-trio-preview">
+            <div class="preview-card"><img src="assets/tony.jpg" alt="Tony"><span>TONY</span></div>
+            <div class="preview-card"><img src="assets/george.jpg" alt="George"><span>GEORGE</span></div>
+            <div class="preview-card"><img src="assets/amid.jpg" alt="Amid"><span>AMID</span></div>
+          </div>
+          <div class="title-menu">
+            <button id="btn-arcade" class="menu-btn selected"><span class="cursor">&#9658;</span> ARCADE MODE (VS CPU)</button>
+            <button id="btn-versus" class="menu-btn"><span class="cursor">&#9658;</span> 2-PLAYER VERSUS (P1 vs P2)</button>
+            <button id="btn-training" class="menu-btn"><span class="cursor">&#9658;</span> TRAINING & PARRY LAB</button>
+            <button id="btn-howtoplay" class="menu-btn"><span class="cursor">&#9658;</span> COMMAND LIST & CONTROLS</button>
+          </div>
+          <div class="press-start-blink">PRESS ANY KEY OR TAP TO START</div>
+          <div class="credits-footer">FEATURING THE SF3 PARRY SYSTEM, SUPER ARTS & EX SPECIALS</div>
+        </div>
+      </div>
+
+      <!-- Character Select Screen -->
+      <div id="select-screen" class="screen">
+        <div class="select-header">
+          <h2>SELECT YOUR FIGHTER</h2>
+          <div class="timer-badge" id="select-timer">30</div>
+        </div>
+        <div class="select-grid">
+          <div class="char-slot" data-char="tony">
+            <div class="portrait-box"><img src="assets/tony.jpg" alt="Tony"></div>
+            <div class="char-meta">
+              <span class="char-name">TONY</span>
+              <span class="char-title">THE CRIMSON BULL</span>
+              <span class="char-style">Twin-Dagger Rushdown &bull; Chains</span>
+            </div>
+          </div>
+          <div class="char-slot" data-char="george">
+            <div class="portrait-box"><img src="assets/george.jpg" alt="George"></div>
+            <div class="char-meta">
+              <span class="char-name">GEORGE</span>
+              <span class="char-title">THE MYSTIC SAGE</span>
+              <span class="char-style">Chakra Ki-Blasts &bull; Astral Palm</span>
+            </div>
+          </div>
+          <div class="char-slot" data-char="amid">
+            <div class="portrait-box"><img src="assets/amid.jpg" alt="Amid"></div>
+            <div class="char-meta">
+              <span class="char-name">AMID</span>
+              <span class="char-title">BURNOUT OVERTIME</span>
+              <span class="char-style">Telekinetic Office Brawl &bull; Chair Spin</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="super-art-select">
+          <div class="sa-title">CHOOSE SUPER ART:</div>
+          <div class="sa-options">
+            <div class="sa-chip active" id="sa-info">I. SIGNATURE SUPER ART (2 BARS)</div>
+          </div>
+        </div>
+
+        <div class="select-instruction">
+          <span>P1: [A][D] Select / [J] Confirm</span> &bull; 
+          <span id="p2-instruction">P2: [&larr;][&rarr;] Select / [1] Confirm</span>
+        </div>
+      </div>
+
+      <!-- VS Match Intro Screen -->
+      <div id="vs-screen" class="screen">
+        <div class="vs-container">
+          <div class="fighter-side p1-side">
+            <div class="vs-portrait" id="vs-p1-img"></div>
+            <h2 id="vs-p1-name">TONY</h2>
+            <p id="vs-p1-sub">THE CRIMSON BULL</p>
+          </div>
+          <div class="vs-center">
+            <div class="vs-logo-badge">VS</div>
+            <div class="stage-name" id="vs-stage-name">STAGE: METROPOLIS ROOFTOP</div>
+          </div>
+          <div class="fighter-side p2-side">
+            <div class="vs-portrait" id="vs-p2-img"></div>
+            <h2 id="vs-p2-name">GEORGE</h2>
+            <p id="vs-p2-sub">THE MYSTIC SAGE</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- How to Play / Commands Modal -->
+      <div id="help-modal" class="modal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>STREET FIGHTER III COMMAND LIST & MECHANICS</h3>
+            <button class="close-modal" id="close-help">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="guide-grid">
+              <div class="guide-col">
+                <h4>&#10024; CORE SF3 MECHANICS</h4>
+                <div class="cmd-row"><span class="kbadge">Tap &rarr;</span> <b>HIGH PARRY</b> (Negates high/mid attacks, 0 damage, frame advantage!)</div>
+                <div class="cmd-row"><span class="kbadge">Tap &darr;</span> <b>LOW PARRY</b> (Negates sweeps/low kicks!)</div>
+                <div class="cmd-row"><span class="kbadge">&rarr;&rarr; / &larr;&larr;</span> <b>DASH</b> (Rapid forward / backward burst)</div>
+                <div class="cmd-row"><span class="kbadge">EX MOVE</span> <b>EX SPECIALS</b> (Press Attack + EX button, costs 0.5 meter)</div>
+                <div class="cmd-row"><span class="kbadge">SUPER ART</span> <b>SUPER ART</b> (Cost 1 full bar: Screen Freeze & Portrait Flash!)</div>
+              </div>
+              <div class="guide-col">
+                <h4>&#127918; PLAYER 1 CONTROLS</h4>
+                <div class="cmd-row"><span class="kbadge">W / A / S / D</span> Move / Jump / Crouch / Parry</div>
+                <div class="cmd-row"><span class="kbadge">J</span> Light Punch (Jab)</div>
+                <div class="cmd-row"><span class="kbadge">K</span> Heavy Punch (Slash / Palm / Slam)</div>
+                <div class="cmd-row"><span class="kbadge">U</span> Light Kick</div>
+                <div class="cmd-row"><span class="kbadge">I</span> Heavy Kick</div>
+                <div class="cmd-row"><span class="kbadge">O</span> Special 1 (QCF / Fireball / Dagger Frenzy)</div>
+                <div class="cmd-row"><span class="kbadge">L</span> Special 2 (Charge / Whirl / Chair Spin)</div>
+                <div class="cmd-row"><span class="kbadge">SPACE</span> <b>SUPER ART</b> (Cinematic Finisher!)</div>
+              </div>
+            </div>
+            <div class="guide-col full-width">
+              <h4>&#128081; CHARACTER MOVELISTS</h4>
+              <p><b>TONY:</b> QCF+P: Crimson Ripper (Dagger Arc) &bull; QCB+K: Horn Ram Charge &bull; SUPER: Crimson Execution (7-Hit Blade Flash)</p>
+              <p><b>GEORGE:</b> QCF+P: Chakra Hadou (Spirit Blast) &bull; QCB+K: Astral Whirlwind Kick &bull; SUPER: Nirvana Judgment (Giant Chakra Beam)</p>
+              <p><b>AMID:</b> QCF+P: Urgent Paperwork & Hot Coffee Volley &bull; QCB+K: Hydraulic Chair Hurricane &bull; SUPER: Overtime Calamity (Office Appliance Vortex)</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Victory / Game Over Screen -->
+      <div id="victory-screen" class="screen">
+        <div class="victory-card">
+          <div class="victory-banner">VICTORY</div>
+          <div class="winner-portrait-wrap">
+            <img id="winner-img" src="assets/tony.jpg" alt="Winner">
+          </div>
+          <h2 id="winner-name">TONY</h2>
+          <div class="winner-quote" id="winner-quote">"Your blood was never strong enough to pierce my blades."</div>
+          <div class="victory-actions">
+            <button id="btn-rematch" class="menu-btn"><span class="cursor">&#9658;</span> REMATCH</button>
+            <button id="btn-char-select" class="menu-btn"><span class="cursor">&#9658;</span> CHARACTER SELECT</button>
+            <button id="btn-menu" class="menu-btn"><span class="cursor">&#9658;</span> MAIN MENU</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- On-Screen Virtual Touch Arcade Controls (for Mobile & Tablets) -->
+    <div id="touch-controls">
+      <div id="touch-dpad">
+        <button class="t-btn t-up" data-key="KeyW">&#9650;</button>
+        <button class="t-btn t-left" data-key="KeyA">&#9664;</button>
+        <button class="t-btn t-down" data-key="KeyS">&#9660;</button>
+        <button class="t-btn t-right" data-key="KeyD">&#9654;</button>
+      </div>
+      <div id="touch-actions">
+        <div class="action-row">
+          <button class="t-btn t-act t-lp" data-key="KeyJ">LP</button>
+          <button class="t-btn t-act t-hp" data-key="KeyK">HP</button>
+          <button class="t-btn t-act t-sp" data-key="KeyO">SP1</button>
+        </div>
+        <div class="action-row">
+          <button class="t-btn t-act t-lk" data-key="KeyU">LK</button>
+          <button class="t-btn t-act t-hk" data-key="KeyI">HK</button>
+          <button class="t-btn t-act t-super" data-key="Space">SUPER</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Status Bar: Quick toggles -->
+    <div id="top-bar">
+      <div class="bar-left">
+        <span class="status-indicator live"></span> SF3 ENGINE ACTIVE
+        <span class="fps-counter" id="fps-counter">60 FPS</span>
+      </div>
+      <div class="bar-right">
+        <button id="toggle-crt" class="pill-btn" title="Toggle CRT scanline filter">CRT: ON</button>
+        <button id="toggle-audio" class="pill-btn" title="Toggle sound">AUDIO: ON</button>
+        <button id="btn-controls-quick" class="pill-btn">COMMAND LIST</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Scripts -->
+  <script src="audio.js"></script>
+  <script src="sprites.js"></script>
+  <script src="fighter.js"></script>
+  <script src="ai.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
