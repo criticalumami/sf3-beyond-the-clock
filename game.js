@@ -52,8 +52,13 @@ class GameEngine {
     // Stage backgrounds
     this.stagePowerplantImg = new Image();
     this.stagePowerplantImg.src = 'assets/stage_powerplant.png';
-    this.stageBgLoaded = false;
-    this.stagePowerplantImg.onload = () => { this.stageBgLoaded = true; };
+
+    this.stageFaddoulImg = new Image();
+    this.stageFaddoulImg.src = 'assets/stage_faddoul.png';
+
+    this.availableStages = ['faddoul', 'powerplant'];
+    this.stageIndex = 0;
+    this.stageId = 'faddoul';
 
     this.smokeParticles = [];
     this.initSmokeParticles();
@@ -291,6 +296,22 @@ class GameEngine {
       const active = AudioSys.toggleAudio();
       audioBtn.textContent = active ? 'AUDIO: ON 🔊' : 'AUDIO: MUTED 🔇';
     };
+
+    // Stage toggle button
+    const stageToggleBtn = document.getElementById('btn-toggle-stage');
+    if (stageToggleBtn) {
+      stageToggleBtn.onclick = (e) => {
+        e.stopPropagation();
+        this.stageIndex = (this.stageIndex + 1) % this.availableStages.length;
+        this.stageId = this.availableStages[this.stageIndex];
+        const labels = {
+          faddoul: '📍 STAGE: FADDOUL SUPERMARKET (JOUNIEH)',
+          powerplant: '📍 STAGE: SEASIDE POWER PLANT (SECTOR 7)'
+        };
+        stageToggleBtn.textContent = labels[this.stageId];
+        AudioSys.playHit(false);
+      };
+    }
   }
 
   switchScreen(screenName) {
@@ -356,14 +377,14 @@ class GameEngine {
     document.getElementById('vs-p1-name').textContent = this.p1Char.toUpperCase();
     document.getElementById('vs-p2-name').textContent = this.p2Char.toUpperCase();
 
-    // Stage Selection based on P2
-    this.stageId = 'powerplant';
+    // Set Stage
     const stageTitles = {
+      faddoul: 'STAGE: FADDOUL SUPERMARKET &bull; JOUNIEH / SARBA',
       powerplant: 'STAGE: SEASIDE INDUSTRIAL POWER PLANT &bull; SECTOR 7'
     };
-    document.getElementById('vs-stage-name').innerHTML = stageTitles[this.stageId];
+    document.getElementById('vs-stage-name').innerHTML = stageTitles[this.stageId] || stageTitles['faddoul'];
 
-    AudioSys.speakAnnouncer('VERSUS !');
+    AudioSys.speakLebanese('FIGHT');
   }
 
   // --- Match Initialization ---
@@ -390,6 +411,11 @@ class GameEngine {
     this.p2.resetRound(700, -1);
     this.roundTimer = 99;
     this.matchState = 'intro';
+
+    // Alternate stages between rounds in Arcade mode
+    if (this.gameMode === 'arcade' && this.currentRound === 2) {
+      this.stageId = 'powerplant';
+    }
 
     const roundCode = this.currentRound === 3 ? 'FINAL ROUND' : `ROUND ${this.currentRound}`;
     const roundText = this.currentRound === 3 ? 'AKHIR JAWLEH !' : `JAWLEH ${this.currentRound} !`;
@@ -581,60 +607,87 @@ class GameEngine {
     ctx.save();
     ctx.imageSmoothingEnabled = false;
 
-    // Draw the pixelated Seaside Power Plant stage
-    if (this.stagePowerplantImg.complete && this.stagePowerplantImg.naturalWidth > 0) {
-      ctx.drawImage(this.stagePowerplantImg, 0, 0, 960, 540);
-    } else {
-      // Fallback industrial sky
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, 460);
-      skyGrad.addColorStop(0, '#5599dd');
-      skyGrad.addColorStop(1, '#aaccff');
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, 960, 540);
-      ctx.fillStyle = '#333740';
-      ctx.fillRect(0, 460, 960, 80);
-    }
-
-    // 1. Animated Chimney Smoke Plumes (from the two red/white striped industrial stacks)
-    // Tower 1 top is around x=518, y=10; Tower 2 top is around x=602, y=42
-    this.smokeParticles.forEach(p => {
-      p.y += p.vy;
-      p.x += p.vx;
-      p.size += 0.08;
-      p.alpha -= 0.003;
-
-      const baseX = p.stack;
-      const baseY = p.stack === 520 ? 12 : 44;
-      const curX = baseX + p.x;
-      const curY = baseY + p.y;
-
-      if (curY < -40 || p.alpha <= 0) {
-        p.x = 0;
-        p.y = 0;
-        p.size = Math.random() * 6 + 4;
-        p.alpha = Math.random() * 0.45 + 0.25;
+    if (this.stageId === 'faddoul') {
+      // ==========================================
+      // STAGE 1: FADDOUL SUPERMARKET (JOUNIEH / SARBA)
+      // ==========================================
+      if (this.stageFaddoulImg.complete && this.stageFaddoulImg.naturalWidth > 0) {
+        ctx.drawImage(this.stageFaddoulImg, 0, 0, 960, 540);
+      } else {
+        ctx.fillStyle = '#6699cc';
+        ctx.fillRect(0, 0, 960, 540);
       }
 
-      ctx.fillStyle = `rgba(240, 245, 255, ${p.alpha})`;
+      const time = Date.now() * 0.003;
+
+      // 1. Animated 24/7 Red Neon Pulse on Supermarket facade (x: 512, y: 300)
+      const neonAlpha = 0.25 + Math.sin(time * 3) * 0.15;
+      ctx.fillStyle = `rgba(255, 30, 30, ${neonAlpha})`;
       ctx.beginPath();
-      ctx.arc(curX, curY, p.size, 0, Math.PI * 2);
+      ctx.arc(514, 305, 36, 0, Math.PI * 2);
       ctx.fill();
-    });
 
-    // 2. Animated Puddle Water Ripples (on the cracked wet asphalt at the bottom)
-    const time = Date.now() * 0.003;
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
-    ctx.lineWidth = 1.5;
-    // Puddle 1: left
-    ctx.beginPath();
-    ctx.ellipse(280, 505, 75 + Math.sin(time) * 4, 10 + Math.sin(time * 1.5) * 2, 0, 0, Math.PI * 2);
-    ctx.stroke();
-    // Puddle 2: center chimney reflection
-    ctx.beginPath();
-    ctx.ellipse(520, 510, 60 + Math.cos(time) * 3, 8 + Math.cos(time * 1.5) * 1.5, 0, 0, Math.PI * 2);
-    ctx.stroke();
+      // 2. Lebanese Flag Fluttering wave on lamp pole (x: 322, y: 140 to 220)
+      const flagWave = Math.sin(time * 2) * 3;
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.15)';
+      ctx.fillRect(302 + flagWave, 145, 42, 60);
 
-    // 3. Ambient Seaside Light & Dust motes
+      // 3. Wet Asphalt Parking Lot Reflections (bottom puddles)
+      ctx.strokeStyle = 'rgba(255, 230, 150, 0.25)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(320, 508, 85 + Math.sin(time) * 5, 12, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(680, 514, 110 + Math.cos(time) * 6, 14, 0, 0, Math.PI * 2);
+      ctx.stroke();
+
+    } else {
+      // ==========================================
+      // STAGE 2: SEASIDE INDUSTRIAL POWER PLANT
+      // ==========================================
+      if (this.stagePowerplantImg.complete && this.stagePowerplantImg.naturalWidth > 0) {
+        ctx.drawImage(this.stagePowerplantImg, 0, 0, 960, 540);
+      } else {
+        ctx.fillStyle = '#5599dd';
+        ctx.fillRect(0, 0, 960, 540);
+      }
+
+      // Chimney smoke plumes
+      this.smokeParticles.forEach(p => {
+        p.y += p.vy;
+        p.x += p.vx;
+        p.size += 0.08;
+        p.alpha -= 0.003;
+
+        const baseX = p.stack;
+        const baseY = p.stack === 520 ? 12 : 44;
+        const curX = baseX + p.x;
+        const curY = baseY + p.y;
+
+        if (curY < -40 || p.alpha <= 0) {
+          p.x = 0;
+          p.y = 0;
+          p.size = Math.random() * 6 + 4;
+          p.alpha = Math.random() * 0.45 + 0.25;
+        }
+
+        ctx.fillStyle = `rgba(240, 245, 255, ${p.alpha})`;
+        ctx.beginPath();
+        ctx.arc(curX, curY, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // Puddle ripples
+      const time = Date.now() * 0.003;
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.ellipse(280, 505, 75 + Math.sin(time) * 4, 10, 0, 0, Math.PI * 2);
+      ctx.stroke();
+    }
+
+    // Ambient floating dust & seaside sunlight motes
     this.bgParticles.forEach(p => {
       ctx.fillStyle = p.color;
       ctx.fillRect(p.x, p.y, p.size, p.size);
