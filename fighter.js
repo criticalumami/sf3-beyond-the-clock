@@ -391,7 +391,7 @@ class Fighter {
     // Trigger Screen Freeze & Super Flash Cut-in
     window.gameEngine.triggerSuperFreeze(this.characterId);
     AudioSys.playSuperFlash();
-    AudioSys.speakAnnouncer('SUPER ART!');
+    AudioSys.speakLebanese('SUPER ART');
 
     this.currentAttack = {
       name: 'super_art',
@@ -427,9 +427,10 @@ class Fighter {
 
     // Audio & Visual SF3 parry effect
     AudioSys.playParry();
+    AudioSys.speakLebanese('PARRY');
     Sprites.addParryRing(this.x + this.facing * 15, this.y - 50);
     Sprites.addHitSpark(this.x + this.facing * 15, this.y - 50, true, true);
-    window.gameEngine.showBannerText('PARRY !', '#00f0ff');
+    window.gameEngine.showBannerText('YA HARAAM ! PARRY ⚡', '#00f0ff');
   }
 
   takeHit(damage, isHeavy, knockback, attackerFacing) {

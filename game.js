@@ -149,29 +149,37 @@ class GameEngine {
 
   // Poll inputs for P1 and P2
   getP1Input() {
-    const forwardKey = this.p1.facing === 1 ? 'KeyD' : 'KeyA';
-    const backKey = this.p1.facing === 1 ? 'KeyA' : 'KeyD';
+    const isArcade = this.gameMode === 'arcade' || this.gameMode === 'training';
 
-    const tapFwd = this.keys[forwardKey] && !this.p1PrevKeys[forwardKey];
-    const tapDn = this.keys['KeyS'] && !this.p1PrevKeys['KeyS'];
+    // Support both WASD and Arrow Keys for P1 in solo modes
+    const isRight = !!(this.keys['KeyD'] || (isArcade && this.keys['ArrowRight']));
+    const isLeft = !!(this.keys['KeyA'] || (isArcade && this.keys['ArrowLeft']));
+    const isUp = !!(this.keys['KeyW'] || (isArcade && this.keys['ArrowUp']));
+    const isDown = !!(this.keys['KeyS'] || (isArcade && this.keys['ArrowDown']));
 
-    this.p1PrevKeys[forwardKey] = this.keys[forwardKey];
-    this.p1PrevKeys['KeyS'] = this.keys['KeyS'];
+    const forward = this.p1.facing === 1 ? isRight : isLeft;
+    const backward = this.p1.facing === 1 ? isLeft : isRight;
+
+    const tapFwd = forward && !this.p1PrevKeys['forward'];
+    const tapDn = isDown && !this.p1PrevKeys['down'];
+
+    this.p1PrevKeys['forward'] = forward;
+    this.p1PrevKeys['down'] = isDown;
 
     return {
-      forward: !!this.keys[forwardKey],
-      backward: !!this.keys[backKey],
-      up: !!this.keys['KeyW'],
-      down: !!this.keys['KeyS'],
+      forward,
+      backward,
+      up: isUp,
+      down: isDown,
       tapForward: tapFwd,
       tapDown: tapDn,
-      lightPunch: !!this.keys['KeyJ'],
-      heavyPunch: !!this.keys['KeyK'],
-      lightKick: !!this.keys['KeyU'],
-      heavyKick: !!this.keys['KeyI'],
-      special1: !!this.keys['KeyO'],
-      special2: !!this.keys['KeyL'],
-      superArt: !!this.keys['Space']
+      lightPunch: !!(this.keys['KeyJ'] || this.keys['KeyZ'] || (isArcade && this.keys['Numpad1'])),
+      heavyPunch: !!(this.keys['KeyK'] || this.keys['KeyX'] || (isArcade && this.keys['Numpad2'])),
+      lightKick: !!(this.keys['KeyU'] || this.keys['KeyC'] || (isArcade && this.keys['Numpad4'])),
+      heavyKick: !!(this.keys['KeyI'] || this.keys['KeyV'] || (isArcade && this.keys['Numpad5'])),
+      special1: !!(this.keys['KeyO'] || this.keys['KeyQ'] || (isArcade && this.keys['Numpad6'])),
+      special2: !!(this.keys['KeyL'] || this.keys['KeyE'] || (isArcade && this.keys['Numpad3'])),
+      superArt: !!(this.keys['Space'] || this.keys['Enter'] || (isArcade && this.keys['Numpad0']))
     };
   }
 
@@ -360,13 +368,14 @@ class GameEngine {
     this.roundTimer = 99;
     this.matchState = 'intro';
 
-    const roundText = this.currentRound === 3 ? 'FINAL ROUND' : `ROUND ${this.currentRound}`;
+    const roundCode = this.currentRound === 3 ? 'FINAL ROUND' : `ROUND ${this.currentRound}`;
+    const roundText = this.currentRound === 3 ? 'AKHIR JAWLEH !' : `JAWLEH ${this.currentRound} !`;
     this.showBannerText(roundText, '#ffdd44');
-    AudioSys.speakAnnouncer(roundText);
+    AudioSys.speakLebanese(roundCode);
 
     setTimeout(() => {
-      this.showBannerText('FIGHT !', '#ff3300');
-      AudioSys.speakAnnouncer('FIGHT !');
+      this.showBannerText('YALLA BALLISH ! ⚔️', '#ff3300');
+      AudioSys.speakLebanese('FIGHT');
       this.matchState = 'fighting';
       this.startTimer();
     }, 1200);
@@ -394,8 +403,8 @@ class GameEngine {
     else winner = this.p1.hp > this.p2.hp ? this.p1 : this.p2;
 
     winner.roundsWon++;
-    this.showBannerText('K.O. !', '#ff1133');
-    AudioSys.speakAnnouncer('K.O. !');
+    this.showBannerText('KHALAS FARATTO ! 💥', '#ff1133');
+    AudioSys.speakLebanese('KO');
 
     setTimeout(() => {
       if (this.p1.roundsWon >= 2 || this.p2.roundsWon >= 2) {
@@ -416,12 +425,12 @@ class GameEngine {
     document.getElementById('winner-name').textContent = winnerChar.toUpperCase();
     document.getElementById('winner-quote').textContent = this.quotes[winnerChar];
 
-    this.showBannerText(`${winnerChar.toUpperCase()} WINS !`, '#ffd700');
-    AudioSys.speakAnnouncer('YOU WIN !');
+    this.showBannerText(`MABROUK YA KBEER ! 🏆`, '#ffd700');
+    AudioSys.speakLebanese('WIN');
 
     setTimeout(() => {
       this.switchScreen('victory');
-    }, 2000);
+    }, 2200);
   }
 
   // --- Visual & Audio FX Triggers ---
