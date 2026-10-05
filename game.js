@@ -50,6 +50,14 @@ class GameEngine {
     };
 
     // Stage backgrounds
+    this.stagePowerplantImg = new Image();
+    this.stagePowerplantImg.src = 'assets/stage_powerplant.png';
+    this.stageBgLoaded = false;
+    this.stagePowerplantImg.onload = () => { this.stageBgLoaded = true; };
+
+    this.smokeParticles = [];
+    this.initSmokeParticles();
+
     this.bgParticles = [];
     this.initBgParticles();
 
@@ -74,6 +82,19 @@ class GameEngine {
       vy: Math.random() * 1.5 + 0.5,
       size: Math.random() * 3 + 1,
       color: 'rgba(255, 255, 255, 0.4)'
+    }));
+  }
+
+  initSmokeParticles() {
+    // Industrial chimney smoke plumes rising from stacks at x=520 and x=595
+    this.smokeParticles = Array.from({ length: 30 }, () => ({
+      stack: Math.random() < 0.6 ? 520 : 595,
+      x: 0,
+      y: Math.random() * -120,
+      vx: (Math.random() - 0.2) * 1.2,
+      vy: -(Math.random() * 1.2 + 0.8),
+      size: Math.random() * 8 + 6,
+      alpha: Math.random() * 0.4 + 0.2
     }));
   }
 
@@ -305,11 +326,9 @@ class GameEngine {
     document.getElementById('vs-p2-name').textContent = this.p2Char.toUpperCase();
 
     // Stage Selection based on P2
-    this.stageId = this.p2Char === 'tony' ? 'rooftop' : (this.p2Char === 'george' ? 'temple' : 'office');
+    this.stageId = 'powerplant';
     const stageTitles = {
-      rooftop: 'STAGE: METROPOLIS ROOFTOP &bull; MIDNIGHT',
-      temple: 'STAGE: ASTRAL MOUNTAIN DOJO',
-      office: 'STAGE: CORPORATE HEADQUARTERS &bull; FLOOR 42'
+      powerplant: 'STAGE: SEASIDE INDUSTRIAL POWER PLANT &bull; SECTOR 7'
     };
     document.getElementById('vs-stage-name').innerHTML = stageTitles[this.stageId];
 
@@ -527,96 +546,69 @@ class GameEngine {
   // --- Dynamic Stages ---
   drawStage() {
     const ctx = this.ctx;
-    if (this.stageId === 'rooftop') {
-      // 1. Metro Cyber Rooftop (Tony's turf)
-      // Dark city sky
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, 460);
-      skyGrad.addColorStop(0, '#0a0a18');
-      skyGrad.addColorStop(1, '#231535');
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, 960, 540);
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
 
-      // Distant Skyscrapers & Neon Signs
-      ctx.fillStyle = '#101222';
-      ctx.fillRect(80, 140, 90, 320);
-      ctx.fillRect(210, 100, 120, 360);
-      ctx.fillRect(480, 120, 140, 340);
-      ctx.fillRect(660, 80, 100, 380);
-      ctx.fillRect(800, 150, 110, 310);
-
-      // Neon glowing windows
-      ctx.fillStyle = '#ff0055';
-      ctx.fillRect(230, 130, 24, 8);
-      ctx.fillStyle = '#00f0ff';
-      ctx.fillRect(520, 150, 40, 10);
-      ctx.fillRect(680, 110, 30, 12);
-
-      // Rooftop concrete floor
-      ctx.fillStyle = '#1c1f2e';
-      ctx.fillRect(0, 460, 960, 80);
-      ctx.fillStyle = '#2d334d';
-      ctx.fillRect(0, 460, 960, 8); // Curb line
-
-    } else if (this.stageId === 'temple') {
-      // 2. Astral Mountain Temple (George's turf)
-      const skyGrad = ctx.createLinearGradient(0, 0, 0, 460);
-      skyGrad.addColorStop(0, '#10223b');
-      skyGrad.addColorStop(1, '#3b6a94');
-      ctx.fillStyle = skyGrad;
-      ctx.fillRect(0, 0, 960, 540);
-
-      // Distant mystical peaks
-      ctx.fillStyle = '#1e3352';
-      ctx.beginPath();
-      ctx.moveTo(0, 460);
-      ctx.lineTo(200, 220);
-      ctx.lineTo(440, 460);
-      ctx.lineTo(680, 180);
-      ctx.lineTo(960, 460);
-      ctx.fill();
-
-      // Ancient temple dojo pillars
-      ctx.fillStyle = '#7a3122';
-      ctx.fillRect(60, 160, 30, 300);
-      ctx.fillRect(870, 160, 30, 300);
-      // Shrine roof
-      ctx.fillRect(20, 140, 110, 20);
-      ctx.fillRect(830, 140, 110, 20);
-
-      // Wooden dojo ground
-      ctx.fillStyle = '#8a5e38';
-      ctx.fillRect(0, 460, 960, 80);
-      ctx.fillStyle = '#a87547';
-      ctx.fillRect(0, 460, 960, 8);
-
+    // Draw the pixelated Seaside Power Plant stage
+    if (this.stagePowerplantImg.complete && this.stagePowerplantImg.naturalWidth > 0) {
+      ctx.drawImage(this.stagePowerplantImg, 0, 0, 960, 540);
     } else {
-      // 3. Corporate Office at Midnight (Amid's turf)
-      ctx.fillStyle = '#0f141f';
+      // Fallback industrial sky
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, 460);
+      skyGrad.addColorStop(0, '#5599dd');
+      skyGrad.addColorStop(1, '#aaccff');
+      ctx.fillStyle = skyGrad;
       ctx.fillRect(0, 0, 960, 540);
-
-      // Floor to ceiling windows showing night city
-      ctx.fillStyle = '#182033';
-      for (let i = 40; i < 940; i += 160) {
-        ctx.fillRect(i, 40, 130, 420);
-      }
-      // Glowing skyscrapers through windows
-      ctx.fillStyle = '#ffaa00';
-      ctx.fillRect(100, 200, 14, 18);
-      ctx.fillRect(280, 160, 14, 18);
-      ctx.fillRect(600, 180, 14, 18);
-
-      // Carpeted office floor
-      ctx.fillStyle = '#222838';
+      ctx.fillStyle = '#333740';
       ctx.fillRect(0, 460, 960, 80);
-      ctx.fillStyle = '#3a445e';
-      ctx.fillRect(0, 460, 960, 6);
     }
 
-    // Ambient floating dust / rain / embers
+    // 1. Animated Chimney Smoke Plumes (from the two red/white striped industrial stacks)
+    // Tower 1 top is around x=518, y=10; Tower 2 top is around x=602, y=42
+    this.smokeParticles.forEach(p => {
+      p.y += p.vy;
+      p.x += p.vx;
+      p.size += 0.08;
+      p.alpha -= 0.003;
+
+      const baseX = p.stack;
+      const baseY = p.stack === 520 ? 12 : 44;
+      const curX = baseX + p.x;
+      const curY = baseY + p.y;
+
+      if (curY < -40 || p.alpha <= 0) {
+        p.x = 0;
+        p.y = 0;
+        p.size = Math.random() * 6 + 4;
+        p.alpha = Math.random() * 0.45 + 0.25;
+      }
+
+      ctx.fillStyle = `rgba(240, 245, 255, ${p.alpha})`;
+      ctx.beginPath();
+      ctx.arc(curX, curY, p.size, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // 2. Animated Puddle Water Ripples (on the cracked wet asphalt at the bottom)
+    const time = Date.now() * 0.003;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.22)';
+    ctx.lineWidth = 1.5;
+    // Puddle 1: left
+    ctx.beginPath();
+    ctx.ellipse(280, 505, 75 + Math.sin(time) * 4, 10 + Math.sin(time * 1.5) * 2, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    // Puddle 2: center chimney reflection
+    ctx.beginPath();
+    ctx.ellipse(520, 510, 60 + Math.cos(time) * 3, 8 + Math.cos(time * 1.5) * 1.5, 0, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // 3. Ambient Seaside Light & Dust motes
     this.bgParticles.forEach(p => {
       ctx.fillStyle = p.color;
       ctx.fillRect(p.x, p.y, p.size, p.size);
     });
+
+    ctx.restore();
   }
 
   // --- Street Fighter III Authentic HUD ---
